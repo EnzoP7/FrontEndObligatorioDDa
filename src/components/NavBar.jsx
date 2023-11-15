@@ -1,6 +1,13 @@
+"use client";
 import React from "react";
 
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 const NavBar = () => {
+  // const router = useRouter();
+
   return (
     <div className="navbar bg-base-100 border-b-2 border-base-content">
       <div className="navbar-start">
@@ -25,52 +32,41 @@ const NavBar = () => {
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
-            <li>
-              <a>Productos</a>
-            </li>
-            <li>
-              <a>Usuarios</a>
-              <ul className="p-2">
-                <li>
-                  <a>Vip</a>
-                </li>
-                <li>
-                  <a>Regulares</a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <a>Dashboard</a>
-            </li>
+            <Link href={"/"}>
+              <p>Inicio</p>{" "}
+            </Link>
+
+            <Link href={"/products"}>
+              <p>Producto</p>{" "}
+            </Link>
+
+            <Link href={"/users"}>Usuarios </Link>
+
+            <Link href={"/"}>Dashboard </Link>
           </ul>
         </div>
-        <a className="btn btn-ghost text-xl">Electro VENTAS</a>
+        <Image src="/LogoDDa.png" width={200} height={200} alt="logo" />
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
+        <ul className="menu menu-horizontal px-1 text-3xl font-semibold">
           <li>
-            <a>Productos</a>
+            <Link href={"/"}>
+              <p>Inicio</p>{" "}
+            </Link>
           </li>
-          <li tabIndex={0}>
-            <details>
-              <summary>Usuarios</summary>
-              <ul className="p-2">
-                <li>
-                  <a>VIP</a>
-                </li>
-                <li>
-                  <a>Regulares</a>
-                </li>
-              </ul>
-            </details>
+
+          <li>
+            <Link href={"/products"}>
+              <p>Producto</p>{" "}
+            </Link>
           </li>
           <li>
-            <a>Dashboard</a>
+            <Link href={"/users"}>Usuarios </Link>
+          </li>
+          <li>
+            <Link href={"/"}>Dashboard </Link>
           </li>
         </ul>
-      </div>
-      <div className="navbar-end">
-        <a className="btn">Button</a>
       </div>
     </div>
   );

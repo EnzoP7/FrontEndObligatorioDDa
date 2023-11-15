@@ -1,6 +1,7 @@
 import NavBar from "@/src/components/NavBar";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import ElFooter from "@/src/components/ElFooter";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,6 +17,8 @@ export default function RootLayout({ children }) {
         <NavBar />
 
         {children}
+
+        <ElFooter />
       </body>
     </html>
   );

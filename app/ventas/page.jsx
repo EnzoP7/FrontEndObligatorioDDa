@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import VENTAS from "@/data/ventas";
 import PRODUCTOS from "@/data/productos";
 
-const page = () => {
+const Ventaspage = () => {
   const router = useRouter();
 
   const [Filtro, setFiltro] = useState("todos");
@@ -136,4 +136,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Ventaspage;

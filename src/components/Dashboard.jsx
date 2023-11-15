@@ -5,9 +5,6 @@ const Dashboard = () => {
   return (
     <div className="mt-20">
       <div className="">
-        <div className="ml-10 font-bold text-5xl">
-          <h1>Dashboard</h1>
-        </div>
         <div className="flex mx-32 gap-5  mt-20 justify-between items-center xl:flex-nowrap flex-wrap">
           <CajitasDash
             logo="shoppingBag"
