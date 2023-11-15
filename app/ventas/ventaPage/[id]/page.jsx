@@ -1,3 +1,4 @@
+import PRODUCTOS from "@/data/productos";
 import VENTAS from "@/data/ventas";
 import React from "react";
 
@@ -12,6 +13,14 @@ const Ventapage = ({ params }) => {
   const ventaFiltrada = VENTAS.filter((laVenta) => laVenta.id == elId);
 
   const venta = ventaFiltrada[0] || null;
+
+  const calcularTotal = (productos) => {
+    return productos.reduce((total, producto) => {
+      const precioProducto =
+        PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
+      return total + precioProducto * producto.cantidad;
+    }, 0);
+  };
 
   return (
     <>
@@ -68,7 +77,10 @@ const Ventapage = ({ params }) => {
               <FaMoneyBillWave size={50} />
             </p>
             <h1 className="text-3xl">
-              <span className="font-semibold "> TOTAL: ${venta.total} </span>
+              <span className="font-semibold ">
+                {" "}
+                TOTAL: $ {calcularTotal(venta.productos)}{" "}
+              </span>
             </h1>
           </div>
         </div>

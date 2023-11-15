@@ -13,7 +13,7 @@ const UsersPage = () => {
   const filtrarClientes = () => {
     switch (Filtro) {
       case "todos":
-        return CLIENTES.filter((cliente) => cliente.estado);
+        return CLIENTES;
       case "VIP":
         return CLIENTES.filter((cliente) => cliente.vip && cliente.estado);
       case "regulares":

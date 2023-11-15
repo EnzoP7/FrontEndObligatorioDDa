@@ -42,7 +42,7 @@ const NavBar = () => {
 
             <Link href={"/users"}>Usuarios </Link>
 
-            <Link href={"/"}>Dashboard </Link>
+            <Link href={"/ventas"}>Ventas </Link>
           </ul>
         </div>
         <Image src="/LogoDDa.png" width={200} height={200} alt="logo" />
@@ -64,7 +64,7 @@ const NavBar = () => {
             <Link href={"/users"}>Usuarios </Link>
           </li>
           <li>
-            <Link href={"/"}>Dashboard </Link>
+            <Link href={"/ventas"}>Ventas </Link>
           </li>
         </ul>
       </div>

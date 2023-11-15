@@ -13,7 +13,7 @@ const Productspage = () => {
   const filtrarProductos = () => {
     switch (Filtro) {
       case "todos":
-        return PRODUCTOS.filter((producto) => producto.estado);
+        return PRODUCTOS;
       case "hay":
         return PRODUCTOS.filter(
           (producto) => producto.cantidadEnStock > 0 && producto.estado
