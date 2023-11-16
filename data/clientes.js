@@ -13,7 +13,7 @@ const CLIENTES = [
     telefono: "555-123-4567",
     vip: {
       fechaMembresia: "2023-01-15",
-      contadorCompras: 2,
+      contadorCompras: 3,
     },
     estado: true,
   },

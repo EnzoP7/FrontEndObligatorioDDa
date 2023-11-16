@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "@/src/hooks/useForm";
 import CLIENTES from "@/data/clientes";
 
@@ -113,13 +113,13 @@ const EditUserpage = ({ params }) => {
                 >
                   <option disabled>VIP</option>
                   <option value={true}>SI</option>
-                  <option value={false} selected onClick={() => resetearVip()}>
+                  <option value={false} selected>
                     NO
                   </option>
                 </select>
               </div>
 
-              {vip ? (
+              {vip === "true" && (
                 <>
                   <div>
                     <label className="text-xl p-4 flex justify-center">
@@ -134,8 +134,6 @@ const EditUserpage = ({ params }) => {
                     />
                   </div>
                 </>
-              ) : (
-                ""
               )}
               {/* <div className={` ${!vip ? "hidden" : ""}  ml-5`}>
                 <label className="text-xl p-4">Fecha VIP</label>

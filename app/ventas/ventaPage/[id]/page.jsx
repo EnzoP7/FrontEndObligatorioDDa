@@ -2,16 +2,18 @@
 import PRODUCTOS from "@/data/productos";
 import VENTAS from "@/data/ventas";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { FaUser, FaCalendarAlt, FaMoneyBillWave } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { TbShoppingCartCog } from "react-icons/tb";
 import { TbShoppingBagX } from "react-icons/tb";
+import Swal from "sweetalert2";
 
 const Ventapage = ({ params }) => {
   const elId = params.id;
   const router = useRouter();
+  const [selectedVenta, setSelectedVenta] = useState(null);
 
   const ventaFiltrada = VENTAS.filter((laVenta) => laVenta.id == elId);
 
@@ -24,6 +26,77 @@ const Ventapage = ({ params }) => {
       return total + precioProducto * producto.cantidad;
     }, 0);
   };
+
+  const eliminarVenta = () => {
+    //! aca hacemos la peticion a la api pa borrar
+
+    console.log(
+      "id de VENTA eliminado: ",
+      selectedVenta ? selectedVenta.id : null
+    );
+  };
+
+  const handleDeleteConfirmation = () => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger",
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: `¿Estás seguro?\nEliminar Venta ID:  ${
+          selectedVenta ? selectedVenta.id : ""
+        }`,
+        text: "Se Eliminara Definitivamente",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminarlo",
+        cancelButtonText: "No, cancelar",
+        confirmButtonColor: "#fff",
+        cancelButtonColor: "#fff",
+        reverseButtons: true,
+        backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        onClose: () => {
+          // Restablecer selectedClient al cerrar el modal
+          setSelectedVenta(null);
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          // Aquí colocas la lógica para eliminar el cliente
+          eliminarVenta();
+          setSelectedVenta(null);
+          swalWithBootstrapButtons.fire({
+            title: "¡Eliminado!",
+            text: `La Venta ${
+              selectedVenta ? selectedVenta.id : ""
+            } ha sido eliminada.`,
+            icon: "success",
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setSelectedVenta(null);
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "La Venta está a salvo :)",
+            icon: "error",
+          });
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (selectedVenta != null) {
+      handleDeleteConfirmation();
+    }
+  }, [selectedVenta]);
 
   return (
     <>
@@ -101,7 +174,12 @@ const Ventapage = ({ params }) => {
             </h1>
           </div>
 
-          <div className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer">
+          <div
+            className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer"
+            onClick={() => {
+              setSelectedVenta(venta);
+            }}
+          >
             <p className="flex justify-center items-center mb-5">
               <TbShoppingBagX size={50} />
             </p>

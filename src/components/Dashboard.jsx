@@ -51,7 +51,11 @@ const Dashboard = () => {
             ruta="/users/createUser"
           />
           {/* <CajitasDash logo="buscar" titulo="Buscar" /> */}
-          <CajitasDash logo="altaVenta" titulo="Ingresar Venta" />
+          <CajitasDash
+            logo="altaVenta"
+            titulo="Ingresar Venta"
+            ruta="/ventas/createVenta"
+          />
         </div>
       </div>
     </div>

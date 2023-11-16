@@ -1,14 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PRODUCTOS from "@/data/productos";
-
+import Swal from "sweetalert2";
 const Productspage = () => {
   const router = useRouter();
 
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaNombre, setBusquedaNombre] = useState("");
   const [busquedaCantidad, setBusquedaCantidad] = useState("");
+  const [selectedProducto, setSelectedProducto] = useState(null);
 
   const filtrarProductos = () => {
     switch (Filtro) {
@@ -19,7 +20,7 @@ const Productspage = () => {
           (producto) => producto.cantidadEnStock > 0 && producto.estado
         );
       case "nohay":
-        return PRODUCTOS.filter((producto) => producto.cantidadEnStock == 0);
+        return PRODUCTOS.filter((producto) => producto.cantidadEnStock === 0);
       case "debaja":
         return PRODUCTOS.filter((producto) => !producto.estado);
 
@@ -55,6 +56,78 @@ const Productspage = () => {
     }
   }
 
+  const eliminarProducto = () => {
+    //! aca hacemos la peticion a la api pa borrar
+
+    console.log(
+      "id de Producto eliminado: ",
+      selectedProducto ? selectedProducto.id : null
+    );
+  };
+
+  const handleDeleteConfirmation = () => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger",
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: `¿Estás seguro?\nEliminar a  ${
+          selectedProducto ? selectedProducto.nombre : ""
+        }`,
+        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminarlo",
+        cancelButtonText: "No, cancelar",
+        confirmButtonColor: "#fff",
+        cancelButtonColor: "#fff",
+        reverseButtons: true,
+        backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        onClose: () => {
+          // Restablecer selectedClient al cerrar el modal
+          setSelectedProducto(null);
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          // Aquí colocas la lógica para eliminar el cliente
+          eliminarProducto();
+          setSelectedProducto(null);
+          swalWithBootstrapButtons.fire({
+            title: "¡Eliminado!",
+            text: `El Producto ${
+              selectedProducto ? selectedProducto.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setSelectedProducto(null);
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "El Producto está a salvo :)",
+            icon: "error",
+          });
+        }
+      });
+  };
+
+  {
+    useEffect(() => {
+      if (selectedProducto != null) {
+        handleDeleteConfirmation();
+      }
+    }, [selectedProducto]);
+  }
   return (
     <>
       <div>
@@ -180,7 +253,12 @@ const Productspage = () => {
                         ""
                       )}
                       {producto.estado ? (
-                        <button className="bg-red-700 text-white p-3 rounded-lg">
+                        <button
+                          className="bg-red-700 text-white p-3 rounded-lg"
+                          onClick={() => {
+                            setSelectedProducto(producto);
+                          }}
+                        >
                           Eliminar
                         </button>
                       ) : (

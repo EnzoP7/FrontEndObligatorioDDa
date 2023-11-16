@@ -57,7 +57,6 @@ const createVentaPAge = () => {
 
     return total;
   };
-  const totalsote = calcularTotal();
 
   const initialFormState = {
     id: "1",
@@ -68,25 +67,51 @@ const createVentaPAge = () => {
   };
   const { id, productos, fecha, clienteId, total, onInputChange, onResetForm } =
     useForm();
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Agregar lógica para manejar el envío del formulario aquí
-    console.log("Formulario enviado:", {
-      id: "1",
-      productos,
-      fecha, // Puedes utilizar un formato de fecha adecuado para tu aplicación
-      clienteId,
-
-      productosSeleccionados,
-      totalsote,
-    });
-  };
 
   const ProductosFiltrados = PRODUCTOS.filter(
     (elProducto) => elProducto.estado
   );
 
   const usuariosFiltrados = CLIENTES.filter((elCli) => elCli.estado);
+
+  const buscarCliente = (id) => {
+    const elCli = CLIENTES.filter((elCli) => elCli.id == id);
+    const cliente = elCli[0] || null;
+    return cliente;
+  };
+
+  const totalConDescuentoPorVIP = () => {
+    const eltotal = calcularTotal();
+    const descuento = eltotal * 0.3;
+    const montoFinal = eltotal - descuento;
+    return montoFinal;
+  };
+
+  const clienteDeLaCompra = buscarCliente(clienteId);
+  const tiene3Compras =
+    clienteDeLaCompra &&
+    clienteDeLaCompra.vip &&
+    clienteDeLaCompra.vip.contadorCompras === 3;
+
+  const totalFinal = tiene3Compras
+    ? totalConDescuentoPorVIP()
+    : calcularTotal();
+  console.log(totalFinal);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Agregar lógica para manejar el envío del formulario aquí
+    console.log("Formulario enviado:", {
+      id: "1",
+
+      fecha, // Puedes utilizar un formato de fecha adecuado para tu aplicación
+      clienteId,
+
+      productosSeleccionados,
+      totalFinal,
+    });
+  };
+
   return (
     <>
       <div>
@@ -184,8 +209,15 @@ const createVentaPAge = () => {
                 className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
                 onChange={onInputChange}
               >
-                {calcularTotal()}
+                {totalFinal}
               </div>
+              {totalFinal == totalConDescuentoPorVIP() ? (
+                <div className="text-xl p4 flex justify-center">
+                  (Descuento del 30%)
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           </div>
 

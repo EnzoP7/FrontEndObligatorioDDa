@@ -61,7 +61,9 @@ const CreateUserpage = () => {
             className="border-2 border-base-content p-5 rounded-2xl shadow-lg shadow-base-content "
           >
             <div
-              className={`grid ${!vip ? "grid-cols-4" : "grid-cols-5"}  gap-5`}
+              className={`grid ${
+                vip === false ? "grid-cols-4" : "grid-cols-5"
+              }  gap-5`}
             >
               <div>
                 <label className="text-xl p-4 flex justify-center">
@@ -112,13 +114,13 @@ const CreateUserpage = () => {
                 >
                   <option disabled>VIP</option>
                   <option value={true}>SI</option>
-                  <option value={false} onClick={() => resetearVip()}>
+                  <option value={false} selected>
                     NO
                   </option>
                 </select>
               </div>
 
-              {vip ? (
+              {vip === "true" && (
                 <>
                   <div>
                     <label className="text-xl p-4 flex justify-center">
@@ -133,20 +135,7 @@ const CreateUserpage = () => {
                     />
                   </div>
                 </>
-              ) : (
-                ""
               )}
-              {/* <div className={` ${!vip ? "hidden" : ""}  ml-5`}>
-                <label className="text-xl p-4">Fecha VIP</label>
-                <input
-                  className="bg-base-100  w-3/4 p-1  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
-                  type="date"
-                  placeholder="Ingresa FECHA VIP del Cliente"
-                  name="fechaVip"
-                  value={fechaVip}
-                  onChange={onInputChange}
-                />
-              </div> */}
             </div>
 
             <div className="flex items-center justify-center py-10 gap-5">

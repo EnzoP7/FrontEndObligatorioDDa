@@ -45,7 +45,13 @@ const NavBar = () => {
             <Link href={"/ventas"}>Ventas </Link>
           </ul>
         </div>
-        <Image src="/LogoDDa.png" width={200} height={200} alt="logo" />
+        <Image
+          src="/LogoDDa.png"
+          width={200}
+          height={200}
+          alt="logo"
+          priority
+        />
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 text-3xl font-semibold">

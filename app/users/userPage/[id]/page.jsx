@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CLIENTES from "@/data/clientes";
 import {
   FaUser,
@@ -14,9 +14,11 @@ import { RiVipCrown2Fill } from "react-icons/ri";
 import VENTAS from "@/data/ventas";
 import PRODUCTOS from "@/data/productos";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 const UsuarioPage = ({ params }) => {
   const router = useRouter();
+  const [selectedClient, setSelectedClient] = useState(null);
 
   const elId = params.id;
   const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
@@ -37,6 +39,71 @@ const UsuarioPage = ({ params }) => {
         PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
       return total + precioProducto * producto.cantidad;
     }, 0);
+  };
+
+  const handleDeleteConfirmation = () => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger",
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: `¿Estás seguro?\nEliminar a  ${
+          selectedClient ? selectedClient.nombre : ""
+        }`,
+        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminarlo",
+        cancelButtonText: "No, cancelar",
+        confirmButtonColor: "#fff",
+        cancelButtonColor: "#fff",
+        reverseButtons: true,
+        backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        onClose: () => {
+          // Restablecer selectedClient al cerrar el modal
+          setSelectedClient(null);
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          // Aquí colocas la lógica para eliminar el cliente
+          eliminarCliente();
+          setSelectedClient(null);
+          swalWithBootstrapButtons.fire({
+            title: "¡Eliminado!",
+            text: `El usuario ${
+              selectedClient ? selectedClient.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setSelectedClient(null);
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "El usuario está a salvo :)",
+            icon: "error",
+          });
+        }
+      });
+  };
+
+  const eliminarCliente = () => {
+    //! aca hacemos la peticion a la api pa borrar
+
+    console.log(
+      "id de cliente eliminado: ",
+      selectedClient ? selectedClient.id : null
+    );
   };
 
   return (
@@ -129,7 +196,17 @@ const UsuarioPage = ({ params }) => {
               ) : (
                 ""
               )}
-              <div className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer">
+              <div
+                className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer"
+                onClick={() => {
+                  setSelectedClient(cliente);
+                }}
+              >
+                {useEffect(() => {
+                  if (selectedClient === cliente) {
+                    handleDeleteConfirmation();
+                  }
+                }, [selectedClient])}
                 <p className="flex justify-center items-center mb-5">
                   <FaUserMinus size={50} />
                 </p>

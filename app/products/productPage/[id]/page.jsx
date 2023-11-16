@@ -1,7 +1,7 @@
 "use client";
 
 import PRODUCTOS from "@/data/productos";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaBagShopping } from "react-icons/fa6";
 import { RiMoneyDollarCircleFill } from "react-icons/ri";
 import { MdOutlineProductionQuantityLimits } from "react-icons/md";
@@ -10,9 +10,11 @@ import { TbShoppingBagX } from "react-icons/tb";
 import { TbShoppingCartCheck } from "react-icons/tb";
 import VENTAS from "@/data/ventas";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 const Productpage = ({ params }) => {
   const elId = params.id;
+  const [selectedProducto, setSelectedProducto] = useState(null);
 
   const router = useRouter();
 
@@ -40,6 +42,77 @@ const Productpage = ({ params }) => {
       return total + precioProducto * producto.cantidad;
     }, 0);
   };
+
+  const eliminarProducto = () => {
+    //! aca hacemos la peticion a la api pa borrar
+
+    console.log(
+      "id de Producto eliminado: ",
+      selectedProducto ? selectedProducto.id : null
+    );
+  };
+
+  const handleDeleteConfirmation = () => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger",
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: `¿Estás seguro?\nEliminar a  ${
+          selectedProducto ? selectedProducto.nombre : ""
+        }`,
+        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminarlo",
+        cancelButtonText: "No, cancelar",
+        confirmButtonColor: "#fff",
+        cancelButtonColor: "#fff",
+        reverseButtons: true,
+        backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        onClose: () => {
+          // Restablecer selectedClient al cerrar el modal
+          setSelectedProducto(null);
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          // Aquí colocas la lógica para eliminar el cliente
+          eliminarProducto();
+          setSelectedProducto(null);
+          swalWithBootstrapButtons.fire({
+            title: "¡Eliminado!",
+            text: `El Producto ${
+              selectedProducto ? selectedProducto.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setSelectedProducto(null);
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "El Producto está a salvo :)",
+            icon: "error",
+          });
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (selectedProducto != null) {
+      handleDeleteConfirmation();
+    }
+  }, [selectedProducto]);
 
   return (
     <>
@@ -110,7 +183,12 @@ const Productpage = ({ params }) => {
                 </h1>
               </div>
 
-              <div className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer">
+              <div
+                className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer"
+                onClick={() => {
+                  setSelectedProducto(producto);
+                }}
+              >
                 <p className="flex justify-center items-center mb-5">
                   <TbShoppingBagX size={50} />
                 </p>

@@ -51,12 +51,18 @@ const editVentaPage = ({ params }) => {
     id: venta.id,
     productos: venta.productos,
     fecha: "",
-    clienteId: "",
+    clienteId: venta.clienteId,
     total: venta.total,
   };
 
   const { id, productos, fecha, clienteId, total, onInputChange, onResetForm } =
-    useForm();
+    useForm(initialFormState);
+
+  const buscarCliente = (id) => {
+    const elCli = CLIENTES.filter((elCli) => elCli.id == id);
+    const cliente = elCli[0] || null;
+    return cliente;
+  };
 
   const handleProductoSeleccionado = (event) => {
     const productoId = event.target.value;
@@ -115,7 +121,23 @@ const editVentaPage = ({ params }) => {
 
   const usuariosFiltrados = CLIENTES.filter((elCli) => elCli.estado);
 
-  const eltotal = calcularTotal();
+  const totalConDescuentoPorVIP = () => {
+    const eltotal = calcularTotal();
+    const descuento = eltotal * 0.3;
+    const montoFinal = eltotal - descuento;
+    return montoFinal;
+  };
+
+  const clienteDeLaCompra = buscarCliente(clienteId);
+  const tiene3Compras =
+    clienteDeLaCompra &&
+    clienteDeLaCompra.vip &&
+    clienteDeLaCompra.vip.contadorCompras === 3;
+
+  const totalFinal = tiene3Compras
+    ? totalConDescuentoPorVIP()
+    : calcularTotal();
+  console.log(totalFinal);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -127,7 +149,7 @@ const editVentaPage = ({ params }) => {
       clienteId,
 
       productosSeleccionados,
-      eltotal,
+      totalFinal,
     });
   };
 
@@ -215,7 +237,11 @@ const editVentaPage = ({ params }) => {
                 onChange={onInputChange}
               >
                 {usuariosFiltrados.map((cliente) => (
-                  <option value={cliente.id} key={cliente.id}>
+                  <option
+                    value={cliente.id}
+                    key={cliente.id}
+                    selected={cliente.id === venta.clienteId}
+                  >
                     {cliente.id} {cliente.nombre}
                   </option>
                 ))}
@@ -228,8 +254,15 @@ const editVentaPage = ({ params }) => {
                 className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
                 onChange={onInputChange}
               >
-                {calcularTotal()}
+                {totalFinal}
               </div>
+              {totalFinal == totalConDescuentoPorVIP() ? (
+                <div className="text-xl p4 flex justify-center">
+                  (Descuento del 30%)
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CLIENTES from "@/data/clientes";
-
+import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
 const UsersPage = () => {
@@ -9,6 +9,10 @@ const UsersPage = () => {
 
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaNombre, setBusquedaNombre] = useState("");
+  const [selectedClient, setSelectedClient] = useState(null);
+  useEffect(() => {
+    console.log(selectedClient);
+  }, [selectedClient]);
 
   const filtrarClientes = () => {
     switch (Filtro) {
@@ -35,6 +39,78 @@ const UsersPage = () => {
 
   const clientesFiltrados = filtrarClientes();
 
+  const eliminarCliente = () => {
+    //! aca hacemos la peticion a la api pa borrar
+
+    console.log(
+      "id de cliente eliminado: ",
+      selectedClient ? selectedClient.id : null
+    );
+  };
+
+  const handleDeleteConfirmation = () => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger",
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: `¿Estás seguro?\nEliminar a  ${
+          selectedClient ? selectedClient.nombre : ""
+        }`,
+        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminarlo",
+        cancelButtonText: "No, cancelar",
+        confirmButtonColor: "#fff",
+        cancelButtonColor: "#fff",
+        reverseButtons: true,
+        backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        onClose: () => {
+          // Restablecer selectedClient al cerrar el modal
+          setSelectedClient(null);
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          // Aquí colocas la lógica para eliminar el cliente
+          eliminarCliente();
+          setSelectedClient(null);
+          swalWithBootstrapButtons.fire({
+            title: "¡Eliminado!",
+            text: `El usuario ${
+              selectedClient ? selectedClient.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setSelectedClient(null);
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "El usuario está a salvo :)",
+            icon: "error",
+          });
+        }
+      });
+  };
+
+  {
+    useEffect(() => {
+      if (selectedClient != null) {
+        handleDeleteConfirmation();
+      }
+    }, [selectedClient]);
+  }
   return (
     <>
       <div>
@@ -143,7 +219,12 @@ const UsersPage = () => {
                       ""
                     )}
                     {cliente.estado ? (
-                      <button className="bg-red-700 text-white p-3 rounded-lg">
+                      <button
+                        className="bg-red-700 text-white p-3 rounded-lg"
+                        onClick={() => {
+                          setSelectedClient(cliente);
+                        }}
+                      >
                         Eliminar
                       </button>
                     ) : (
