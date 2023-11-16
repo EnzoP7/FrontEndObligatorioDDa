@@ -9,9 +9,12 @@ import { TbShoppingCartCog } from "react-icons/tb";
 import { TbShoppingBagX } from "react-icons/tb";
 import { TbShoppingCartCheck } from "react-icons/tb";
 import VENTAS from "@/data/ventas";
+import { useRouter } from "next/navigation";
 
 const Productpage = ({ params }) => {
   const elId = params.id;
+
+  const router = useRouter();
 
   const productoFiltrado = PRODUCTOS.filter(
     (elProducto) => elProducto.id == elId
@@ -95,7 +98,10 @@ const Productpage = ({ params }) => {
         {producto.estado ? (
           <>
             <div className="m-20 flex items-center justify-center gap-60 text-black">
-              <div className="bg-orange-300 p-5 rounded-lg hover:scale-105 cursor-pointer">
+              <div
+                className="bg-orange-300 p-5 rounded-lg hover:scale-105 cursor-pointer"
+                onClick={() => router.push(`/products/editProduct/${elId}`)}
+              >
                 <p className="flex justify-center items-center mb-5">
                   <TbShoppingCartCog size={50} />
                 </p>

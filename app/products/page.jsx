@@ -159,7 +159,12 @@ const Productspage = () => {
                         </button>
                       }
                       {producto.estado ? (
-                        <button className="bg-orange-700 text-white p-3 rounded-lg">
+                        <button
+                          className="bg-orange-700 text-white p-3 rounded-lg"
+                          onClick={() =>
+                            router.push(`/products/editProduct/${producto.id}`)
+                          }
+                        >
                           {" "}
                           Editar{" "}
                         </button>

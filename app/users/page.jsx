@@ -122,7 +122,12 @@ const UsersPage = () => {
                       </button>
                     }
                     {cliente.estado ? (
-                      <button className="bg-orange-700 text-white p-3 rounded-lg">
+                      <button
+                        className="bg-orange-700 text-white p-3 rounded-lg"
+                        onClick={() =>
+                          router.push(`/users/editUser/${cliente.id}`)
+                        }
+                      >
                         {" "}
                         Editar{" "}
                       </button>

@@ -13,8 +13,11 @@ import {
 import { RiVipCrown2Fill } from "react-icons/ri";
 import VENTAS from "@/data/ventas";
 import PRODUCTOS from "@/data/productos";
+import { useRouter } from "next/navigation";
 
 const UsuarioPage = ({ params }) => {
+  const router = useRouter();
+
   const elId = params.id;
   const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
   const cliente = clienteFiltrado[0] || null;
@@ -103,7 +106,10 @@ const UsuarioPage = ({ params }) => {
         {cliente.estado ? (
           <>
             <div className="m-20 flex items-center justify-center gap-60 text-black">
-              <div className="bg-orange-300 p-5 rounded-lg hover:scale-105 cursor-pointer">
+              <div
+                className="bg-orange-300 p-5 rounded-lg hover:scale-105 cursor-pointer"
+                onClick={() => router.push(`/users/editUser/${cliente.id}`)}
+              >
                 <p className="flex justify-center items-center mb-5">
                   <FaUserCog size={50} />
                 </p>

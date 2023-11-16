@@ -40,9 +40,17 @@ const Dashboard = () => {
           />
         </div>
         <div className="flex mx-32 gap-5  mt-20 justify-between items-center xl:flex-nowrap flex-wrap">
-          <CajitasDash logo="altaProducto" titulo="Ingresar Producto" />
-          <CajitasDash logo="altausuario" titulo="Ingresar Usuario" />
-          <CajitasDash logo="buscar" titulo="Buscar" />
+          <CajitasDash
+            logo="altaProducto"
+            titulo="Ingresar Producto"
+            ruta="/products/createProduct"
+          />
+          <CajitasDash
+            logo="altausuario"
+            titulo="Ingresar Usuario"
+            ruta="/users/createUser"
+          />
+          {/* <CajitasDash logo="buscar" titulo="Buscar" /> */}
           <CajitasDash logo="altaVenta" titulo="Ingresar Venta" />
         </div>
       </div>
