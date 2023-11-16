@@ -49,7 +49,7 @@ const PRODUCTOS = [
     nombre: "Iphone 15 Pro Max",
     descripcion:
       "Optimiza tu espacio de trabajo con el Mouse Pad diseñado para la máxima precisión y comodidad. Su superficie suave proporciona un deslizamiento perfecto para tu ratón, mejorando la precisión en cada movimiento. Añade un toque de estilo a tu escritorio mientras optimizas la eficiencia de tu experiencia informática con este Mouse Pad de alta calidad.",
-    precio: 19.99,
+    precio: 1500,
     cantidadEnStock: 4,
     estado: true,
   },

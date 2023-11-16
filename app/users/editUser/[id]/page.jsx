@@ -113,7 +113,7 @@ const EditUserpage = ({ params }) => {
                 >
                   <option disabled>VIP</option>
                   <option value={true}>SI</option>
-                  <option value={false} onClick={() => resetearVip()}>
+                  <option value={false} selected onClick={() => resetearVip()}>
                     NO
                   </option>
                 </select>

@@ -1,5 +1,7 @@
+"use client";
 import PRODUCTOS from "@/data/productos";
 import VENTAS from "@/data/ventas";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 import { FaUser, FaCalendarAlt, FaMoneyBillWave } from "react-icons/fa";
@@ -9,6 +11,7 @@ import { TbShoppingBagX } from "react-icons/tb";
 
 const Ventapage = ({ params }) => {
   const elId = params.id;
+  const router = useRouter();
 
   const ventaFiltrada = VENTAS.filter((laVenta) => laVenta.id == elId);
 
@@ -86,7 +89,10 @@ const Ventapage = ({ params }) => {
         </div>
 
         <div className="m-20 flex items-center justify-center gap-60 text-black">
-          <div className="bg-orange-300 p-5 rounded-lg hover:scale-105 cursor-pointer">
+          <div
+            className="bg-orange-300 p-5 rounded-lg hover:scale-105 cursor-pointer"
+            onClick={() => router.push(`/ventas/editVenta/${elId}`)}
+          >
             <p className="flex justify-center items-center mb-5">
               <TbShoppingCartCog size={50} />
             </p>

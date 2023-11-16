@@ -118,7 +118,12 @@ const Ventaspage = () => {
                         Ver Venta
                       </button>
 
-                      <button className="bg-orange-700 text-white p-3 rounded-lg">
+                      <button
+                        className="bg-orange-700 text-white p-3 rounded-lg"
+                        onClick={() =>
+                          router.push(`/ventas/editVenta/${venta.id}`)
+                        }
+                      >
                         Editar
                       </button>
                       <button className="bg-red-700 text-white p-3 rounded-lg">
