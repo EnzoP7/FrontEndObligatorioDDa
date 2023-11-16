@@ -1,8 +1,11 @@
 "use client";
 import { useForm } from "@/src/hooks/useForm";
+import { useRouter } from "next/navigation";
 import React from "react";
+import Swal from "sweetalert2";
 
 const CreateProductPage = () => {
+  const router = useRouter();
   const initialFormState = {
     id: "1",
     nombre: "",
@@ -34,7 +37,47 @@ const CreateProductPage = () => {
       cantidadEnStock,
       estado,
     });
+
+    const taTodoBien = true;
+    {
+      taTodoBien
+        ? Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Producto Ingresado Con Exito",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          })
+        : Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Algo salio Mal",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          });
+    }
+
+    // setTimeout(() => {
+    //   router.push("/products");
+    // }, 2000);
   };
+
   return (
     <>
       <div>

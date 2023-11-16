@@ -114,7 +114,15 @@ const UsersPage = () => {
   return (
     <>
       <div>
-        <h1 className="text-7xl font-semibold m-10">Clientes</h1>
+        <div className="flex items-center">
+          <h1 className="text-7xl font-semibold m-10">Clientes</h1>
+          <button
+            className="p-4 rounded-xl border-2 h-fit border-white bg-green-600 text-base-100 hover:scale-105 hover:bg-base-100 hover:text-base-content text-xl"
+            onClick={() => router.push("users/createUser")}
+          >
+            Ingresar Cliente
+          </button>
+        </div>
 
         <div className="flex pb-5 gap-5 px-10">
           {/* ... (botones de filtro existentes) ... */}

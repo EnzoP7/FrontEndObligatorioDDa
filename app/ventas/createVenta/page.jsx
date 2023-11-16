@@ -3,6 +3,7 @@ import CLIENTES from "@/data/clientes";
 import PRODUCTOS from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 
 const createVentaPAge = () => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
@@ -110,6 +111,47 @@ const createVentaPAge = () => {
       productosSeleccionados,
       totalFinal,
     });
+
+    const taTodoBien = true;
+    {
+      taTodoBien
+        ? Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Venta Ingresada Con Exito",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          })
+        : Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Algo salio Mal",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          });
+    }
+    // redireccion
+    // setTimeout(() => {
+    //   router.push("/ventas");
+    // }, 2000);
+
+    // 2000 milisegundos = 2 segundos
   };
 
   return (

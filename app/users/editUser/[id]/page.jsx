@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "@/src/hooks/useForm";
 import CLIENTES from "@/data/clientes";
+import Swal from "sweetalert2";
 
 const EditUserpage = ({ params }) => {
   const elID = params.id;
@@ -36,7 +37,7 @@ const EditUserpage = ({ params }) => {
   // Manejar el envío del formulario
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Agregar lógica para manejar el envío del formulario aquí
+
     console.log("Formulario enviado:", {
       id,
       nombre,
@@ -47,7 +48,47 @@ const EditUserpage = ({ params }) => {
 
       estado,
     });
-    // Puedes enviar los datos a tu backend, almacenar en el estado global, etc.
+
+    const taTodoBien = true;
+    {
+      taTodoBien
+        ? Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Cliente Modificado Con Exito",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          })
+        : Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Algo salio Mal",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          });
+    }
+    // redireccion
+    // setTimeout(() => {
+    //   router.push("/users");
+    // }, 2000);
+
+    // 2000 milisegundos = 2 segundos
   };
   return (
     <>
@@ -150,7 +191,7 @@ const EditUserpage = ({ params }) => {
 
             <div className="flex items-center justify-center py-10 gap-5">
               <button className="btn  p-3 text-2xl" type="submit">
-                Guardar Cliente
+                Modificar Cliente
               </button>
               <button
                 className="btn w-fit p-3 text-2xl"

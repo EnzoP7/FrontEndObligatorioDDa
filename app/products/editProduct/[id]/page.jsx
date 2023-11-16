@@ -1,6 +1,7 @@
 "use client";
 import PRODUCTOS from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
+import Swal from "sweetalert2";
 import React from "react";
 
 const editProductPage = ({ params }) => {
@@ -39,6 +40,45 @@ const editProductPage = ({ params }) => {
       cantidadEnStock,
       estado,
     });
+
+    const taTodoBien = true;
+    {
+      taTodoBien
+        ? Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Producto Modificado Con Exito",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          })
+        : Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Algo salio Mal",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          });
+    }
+
+    // setTimeout(() => {
+    //   router.push("/products");
+    // }, 2000);
   };
 
   return (

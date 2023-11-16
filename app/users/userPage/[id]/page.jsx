@@ -19,6 +19,7 @@ import Swal from "sweetalert2";
 const UsuarioPage = ({ params }) => {
   const router = useRouter();
   const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedVIP, setSelectedVIP] = useState(null);
 
   const elId = params.id;
   const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
@@ -97,6 +98,62 @@ const UsuarioPage = ({ params }) => {
       });
   };
 
+  const handleVIPConfirmation = () => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger",
+      },
+      buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+      .fire({
+        title: `¿Estás seguro?\nTansformar en VIP a  ${
+          selectedVIP ? selectedVIP.nombre : ""
+        }`,
+        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, pasar a VIP",
+        cancelButtonText: "No, cancelar",
+        confirmButtonColor: "#fff",
+        cancelButtonColor: "#fff",
+        reverseButtons: true,
+        backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        onClose: () => {
+          // Restablecer selectedClient al cerrar el modal
+          setSelectedVIP(null);
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          // Aquí colocas la lógica para eliminar el cliente
+          convertirVIP();
+          setSelectedVIP(null);
+          swalWithBootstrapButtons.fire({
+            title: "Ahora es VIP :)",
+            text: `El usuario ${
+              selectedVIP ? selectedVIP.nombre : ""
+            } ha sido VIPEADO.`,
+            icon: "success",
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          setSelectedVIP(null);
+          swalWithBootstrapButtons.fire({
+            title: "Cancelado",
+            text: "El usuario está a salvo :)",
+            icon: "error",
+          });
+        }
+      });
+  };
+
   const eliminarCliente = () => {
     //! aca hacemos la peticion a la api pa borrar
 
@@ -105,6 +162,22 @@ const UsuarioPage = ({ params }) => {
       selectedClient ? selectedClient.id : null
     );
   };
+
+  const convertirVIP = () => {
+    console.log("ID CLIENTE A VIP: ", selectedVIP ? selectedVIP.id : null);
+  };
+
+  useEffect(() => {
+    if (selectedClient === cliente) {
+      handleDeleteConfirmation();
+    }
+  }, [selectedClient]);
+
+  useEffect(() => {
+    if (selectedVIP === cliente) {
+      handleVIPConfirmation();
+    }
+  }, [selectedVIP]);
 
   return (
     <>
@@ -185,7 +258,12 @@ const UsuarioPage = ({ params }) => {
                 </h1>
               </div>
               {!cliente.vip ? (
-                <div className="bg-yellow-400 p-5 rounded-lg hover:scale-105 cursor-pointer">
+                <div
+                  className="bg-yellow-400 p-5 rounded-lg hover:scale-105 cursor-pointer"
+                  onClick={() => {
+                    setSelectedVIP(cliente);
+                  }}
+                >
                   <p className="flex justify-center items-center mb-5">
                     <RiVipCrown2Fill size={50} />
                   </p>
@@ -202,11 +280,6 @@ const UsuarioPage = ({ params }) => {
                   setSelectedClient(cliente);
                 }}
               >
-                {useEffect(() => {
-                  if (selectedClient === cliente) {
-                    handleDeleteConfirmation();
-                  }
-                }, [selectedClient])}
                 <p className="flex justify-center items-center mb-5">
                   <FaUserMinus size={50} />
                 </p>

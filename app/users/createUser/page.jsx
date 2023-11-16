@@ -1,8 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "@/src/hooks/useForm";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 const CreateUserpage = () => {
+  const router = useRouter();
+
   // Estado inicial del formulario
   const initialFormState = {
     id: "1",
@@ -41,7 +45,48 @@ const CreateUserpage = () => {
 
       estado,
     });
-    // Puedes enviar los datos a tu backend, almacenar en el estado global, etc.
+
+    // dependiendo como viene la respuesta vamos a tirar un modal o otro
+    const taTodoBien = false;
+    {
+      taTodoBien
+        ? Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Cliente Ingresado Con Exito",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          })
+        : Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Algo salio Mal",
+            showConfirmButton: false,
+            timer: 2000,
+            color: "info",
+            background: "#fff",
+            backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+          });
+    }
+    // redireccion
+    // setTimeout(() => {
+    //   router.push("/users");
+    // }, 2000);
+
+    // 2000 milisegundos = 2 segundos
   };
 
   useEffect(() => {
