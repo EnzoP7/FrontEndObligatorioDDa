@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "@/src/hooks/useForm";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const CreateUserpage = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const CreateUserpage = () => {
     direccion: "",
     telefono: "",
     vip: false,
-    fechaVip: null,
+    fechaMembresia: "",
     estado: true,
   };
 
@@ -25,73 +26,108 @@ const CreateUserpage = () => {
     direccion,
     telefono,
     estado,
-    fechaVip,
+    fechaMembresia,
     vip,
     onInputChange,
     onResetForm,
   } = useForm(initialFormState);
 
   // Manejar el envío del formulario
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Agregar lógica para manejar el envío del formulario aquí
+
     console.log("Formulario enviado:", {
       id,
       nombre,
       direccion,
       telefono,
       vip,
-      fechaVip,
+      fechaMembresia,
 
       estado,
     });
 
-    // dependiendo como viene la respuesta vamos a tirar un modal o otro
-    const taTodoBien = false;
-    {
+    const URL = vip
+      ? "http://localhost:5000/clients/vip"
+      : "http://localhost:5000/clients";
+
+    let response;
+
+    try {
+      if (vip) {
+        response = await axios.post(URL, {
+          nombre,
+          direccion,
+          telefono,
+          fechaMembresia,
+        });
+      } else {
+        response = await axios.post(URL, {
+          nombre,
+          direccion,
+          telefono,
+        });
+      }
+      const taTodoBien = response.status === 201 ? true : false;
+
       taTodoBien
         ? Swal.fire({
             position: "center",
             icon: "success",
-            title: "Cliente Ingresado Con Exito",
+            title: "Cliente Ingresado Con Éxito",
             showConfirmButton: false,
             timer: 2000,
             color: "info",
             background: "#fff",
             backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
+        rgba(0,0,123,0.4)
+        url("/cat.gif")
+        left top
+        no-repeat
+      `,
           })
         : Swal.fire({
             position: "center",
             icon: "error",
-            title: "Algo salio Mal",
+            title: "Algo salió Mal",
             showConfirmButton: false,
             timer: 2000,
             color: "info",
             background: "#fff",
             backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
+        rgba(0,0,123,0.4)
+        url("/cat.gif")
+        left top
+        no-repeat
+      `,
           });
+
+      // redireccion
+      // setTimeout(() => {
+      //   router.push("/users");
+      // }, 2000);
+
+      // 2000 milisegundos = 2 segundos
+    } catch (error) {
+      // Manejar errores de la petición
+      console.error("Error en la petición:", error);
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "Algo salió mal en la petición",
+        showConfirmButton: false,
+        timer: 2000,
+        color: "info",
+        background: "#fff",
+        backdrop: `
+      rgba(0,0,123,0.4)
+      url("/cat.gif")
+      left top
+      no-repeat
+    `,
+      });
     }
-    // redireccion
-    // setTimeout(() => {
-    //   router.push("/users");
-    // }, 2000);
-
-    // 2000 milisegundos = 2 segundos
   };
-
-  useEffect(() => {
-    console.log("VIP", vip);
-  }, [vip]);
 
   return (
     <>
@@ -174,8 +210,8 @@ const CreateUserpage = () => {
                     <input
                       className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center   "
                       type="date"
-                      name="fechaVip" // Corregido de fechaVeip a fechaVip
-                      value={fechaVip}
+                      name="fechaMembresia" // Corregido de fechaVeip a fechaVip
+                      value={"fechaMembresia"}
                       onChange={onInputChange}
                     />
                   </div>

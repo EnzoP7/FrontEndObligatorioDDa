@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useForm } from "@/src/hooks/useForm";
-import CLIENTES from "@/data/clientes";
+import clientes from "@/data/clientes";
 import Swal from "sweetalert2";
 
 const EditUserpage = ({ params }) => {
   const elID = params.id;
 
-  const elusuarioFiltrado = CLIENTES.filter((elcli) => elcli.id == elID);
+  const elusuarioFiltrado = clientes.filter((elcli) => elcli.id == elID);
   const usuario = elusuarioFiltrado[0] || null;
 
   const initialFormState = {

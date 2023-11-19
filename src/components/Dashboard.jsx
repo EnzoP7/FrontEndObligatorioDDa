@@ -1,13 +1,18 @@
+"use client";
 import React from "react";
 import CajitasDash from "./CajitasDash";
 import PRODUCTOS from "@/data/productos";
-import CLIENTES from "@/data/clientes";
 import VENTAS from "@/data/ventas";
+import UsuariosVip from "@/data/VIP";
+import clientes from "@/data/clientes";
 
 const Dashboard = () => {
+  const CLIENTES = clientes();
+  const USUARIOSVIP = UsuariosVip();
+
   const cantidadDeProductos = PRODUCTOS.length;
   const cantidadDeUsuarios = CLIENTES.length;
-  const usuariosVIP = CLIENTES.filter((cliente) => cliente.vip).length;
+
   const CantidadVentas = VENTAS.length;
 
   return (
@@ -28,7 +33,7 @@ const Dashboard = () => {
           />
           <CajitasDash
             logo="vipCrown"
-            numero={usuariosVIP}
+            numero={USUARIOSVIP.length}
             titulo="Usuarios VIP"
             ruta="/"
           />

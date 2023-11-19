@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import CLIENTES from "@/data/clientes";
+import clientes from "@/data/clientes";
 import {
   FaUser,
   FaMapMarkerAlt,
@@ -22,7 +22,7 @@ const UsuarioPage = ({ params }) => {
   const [selectedVIP, setSelectedVIP] = useState(null);
 
   const elId = params.id;
-  const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
+  const clienteFiltrado = clientes.filter((elCliente) => elCliente.id == elId);
   const cliente = clienteFiltrado[0] || null;
   const ventasAlCliente = VENTAS.filter((laVenta) => laVenta.clienteId == elId);
 

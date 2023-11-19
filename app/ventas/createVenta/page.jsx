@@ -1,5 +1,5 @@
 "use client";
-import CLIENTES from "@/data/clientes";
+import clientes from "@/data/clientes";
 import PRODUCTOS from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
 import React, { useState } from "react";
@@ -73,10 +73,10 @@ const createVentaPAge = () => {
     (elProducto) => elProducto.estado
   );
 
-  const usuariosFiltrados = CLIENTES.filter((elCli) => elCli.estado);
+  const usuariosFiltrados = clientes.filter((elCli) => elCli.estado);
 
   const buscarCliente = (id) => {
-    const elCli = CLIENTES.filter((elCli) => elCli.id == id);
+    const elCli = clientes.filter((elCli) => elCli.id == id);
     const cliente = elCli[0] || null;
     return cliente;
   };

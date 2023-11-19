@@ -1,11 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import CLIENTES from "@/data/clientes";
+import clientes from "@/data/clientes";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
 const UsersPage = () => {
   const router = useRouter();
+  const CLIENTES = clientes();
 
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaNombre, setBusquedaNombre] = useState("");
@@ -19,9 +20,13 @@ const UsersPage = () => {
       case "todos":
         return CLIENTES;
       case "VIP":
-        return CLIENTES.filter((cliente) => cliente.vip && cliente.estado);
+        return CLIENTES.filter(
+          (cliente) => cliente.fechaMembresia && cliente.estado
+        );
       case "regulares":
-        return CLIENTES.filter((cliente) => !cliente.vip && cliente.estado);
+        return CLIENTES.filter(
+          (cliente) => !cliente.fechaMembresia && cliente.estado
+        );
       case "debaja":
         return CLIENTES.filter((cliente) => !cliente.estado);
 
@@ -189,10 +194,10 @@ const UsersPage = () => {
                 <td className="border p-4">{cliente.nombre}</td>
                 <td className="border p-4">{cliente.direccion}</td>
                 <td className="border p-4">{cliente.telefono}</td>
-                <td className="border p-4">{cliente.vip ? "Sí" : "No"}</td>
                 <td className="border p-4">
-                  {cliente.vip?.fechaMembresia || "-"}
+                  {cliente.fechaMembresia ? "Sí" : "No"}
                 </td>
+                <td className="border p-4">{cliente.fechaMembresia || "-"}</td>
                 <td className="border p-4">
                   <div className="flex justify-between">
                     {
