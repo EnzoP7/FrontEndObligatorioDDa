@@ -3,10 +3,13 @@ import React, { useEffect, useState } from "react";
 import clientes from "@/data/clientes";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import UsuariosRegulares from "@/data/regulares";
 
 const UsersPage = () => {
   const router = useRouter();
   const CLIENTES = clientes();
+  const Regulares = UsuariosRegulares();
 
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaNombre, setBusquedaNombre] = useState("");
@@ -24,9 +27,7 @@ const UsersPage = () => {
           (cliente) => cliente.fechaMembresia && cliente.estado
         );
       case "regulares":
-        return CLIENTES.filter(
-          (cliente) => !cliente.fechaMembresia && cliente.estado
-        );
+        return Regulares.filter((cliente) => cliente.estado);
       case "debaja":
         return CLIENTES.filter((cliente) => !cliente.estado);
 
@@ -44,13 +45,22 @@ const UsersPage = () => {
 
   const clientesFiltrados = filtrarClientes();
 
-  const eliminarCliente = () => {
+  const eliminarCliente = async () => {
     //! aca hacemos la peticion a la api pa borrar
 
-    console.log(
-      "id de cliente eliminado: ",
-      selectedClient ? selectedClient.id : null
-    );
+    if (selectedClient) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/clients/eliminarCliente?id=${selectedClient.id}`
+        );
+        let funco;
+        console.log("LA RESPONSE: ", response);
+        response.status === 200 ? (funco = true) : (funco = false);
+        return funco;
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const handleDeleteConfirmation = () => {
@@ -89,15 +99,25 @@ const UsersPage = () => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          eliminarCliente();
+          const resultado = eliminarCliente();
           setSelectedClient(null);
-          swalWithBootstrapButtons.fire({
-            title: "¡Eliminado!",
-            text: `El usuario ${
-              selectedClient ? selectedClient.nombre : ""
-            } ha sido eliminado.`,
-            icon: "success",
-          });
+
+          resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "¡Eliminado!",
+                text: `El usuario ${
+                  selectedClient ? selectedClient.nombre : ""
+                } ha sido eliminado.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "¡Error!",
+                text: `Algo ha fallado en el Servidor `,
+                icon: "error",
+              });
+          const redireccion = setTimeout(() => {
+            router.push("/");
+          }, 2000);
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedClient(null);
           swalWithBootstrapButtons.fire({
@@ -105,6 +125,9 @@ const UsersPage = () => {
             text: "El usuario está a salvo :)",
             icon: "error",
           });
+          const redireccion = setTimeout(() => {
+            router.push("/");
+          }, 2000);
         }
       });
   };

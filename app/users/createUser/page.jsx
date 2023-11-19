@@ -102,10 +102,10 @@ const CreateUserpage = () => {
       `,
           });
 
-      // redireccion
-      // setTimeout(() => {
-      //   router.push("/users");
-      // }, 2000);
+      redireccion;
+      setTimeout(() => {
+        router.push("/users");
+      }, 2000);
 
       // 2000 milisegundos = 2 segundos
     } catch (error) {
