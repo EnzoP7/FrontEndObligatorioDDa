@@ -1,6 +1,6 @@
 "use client";
 
-import clientes from "@/data/clientes";
+import losClientes from "@/data/clientes";
 import PRODUCTOS from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
 import React, { useState, useEffect } from "react";
@@ -60,7 +60,7 @@ const editVentaPage = ({ params }) => {
     useForm(initialFormState);
 
   const buscarCliente = (id) => {
-    const elCli = clientes.filter((elCli) => elCli.id == id);
+    const elCli = losClientes.filter((elCli) => elCli.id == id);
     const cliente = elCli[0] || null;
     return cliente;
   };
@@ -120,7 +120,7 @@ const editVentaPage = ({ params }) => {
     (elProducto) => elProducto.estado
   );
 
-  const usuariosFiltrados = clientes.filter((elCli) => elCli.estado);
+  const usuariosFiltrados = losClientes.filter((elCli) => elCli.estado);
 
   const totalConDescuentoPorVIP = () => {
     const eltotal = calcularTotal();

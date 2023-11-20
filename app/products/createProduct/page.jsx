@@ -1,5 +1,6 @@
 "use client";
 import { useForm } from "@/src/hooks/useForm";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import React from "react";
 import Swal from "sweetalert2";
@@ -11,7 +12,7 @@ const CreateProductPage = () => {
     nombre: "",
     descripcion: "",
     precio: 0,
-    cantidadEnStock: "",
+    cantidadEnStock: 0,
     estado: true,
   };
 
@@ -26,9 +27,9 @@ const CreateProductPage = () => {
     onResetForm,
   } = useForm(initialFormState);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Agregar lógica para manejar el envío del formulario aquí
+
     console.log("Formulario enviado:", {
       id,
       nombre,
@@ -38,44 +39,58 @@ const CreateProductPage = () => {
       estado,
     });
 
-    const taTodoBien = true;
-    {
-      taTodoBien
-        ? Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Producto Ingresado Con Exito",
-            showConfirmButton: false,
-            timer: 2000,
-            color: "info",
-            background: "#fff",
-            backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
-          })
-        : Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Algo salio Mal",
-            showConfirmButton: false,
-            timer: 2000,
-            color: "info",
-            background: "#fff",
-            backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
-          });
+    let response;
+
+    try {
+      response = await axios.post("http://localhost:5000/products", {
+        nombre,
+        descripcion,
+        precio,
+
+        estado: true,
+        stock: cantidadEnStock,
+      });
+    } catch (error) {
+      console.log(error);
     }
 
-    // setTimeout(() => {
-    //   router.push("/products");
-    // }, 2000);
+    const taTodoBien = response.status === 201 ? true : false;
+
+    taTodoBien
+      ? Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Producto Ingresado Con Exito",
+          showConfirmButton: false,
+          timer: 2000,
+          color: "info",
+          background: "#fff",
+          backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        })
+      : Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Algo salio Mal",
+          showConfirmButton: false,
+          timer: 2000,
+          color: "info",
+          background: "#fff",
+          backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        });
+
+    setTimeout(() => {
+      router.push("/products");
+    }, 2000);
   };
 
   return (

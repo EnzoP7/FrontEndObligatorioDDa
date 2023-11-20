@@ -1,20 +1,41 @@
 "use client";
-import PRODUCTOS from "@/data/productos";
+
 import { useForm } from "@/src/hooks/useForm";
 import Swal from "sweetalert2";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import unsoloProducto from "@/data/unProducto";
+import losProductos from "@/data/productos";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const editProductPage = ({ params }) => {
+  const router = useRouter();
   const elId = params.id;
+  const PRODUCTOS = losProductos();
   const productoFiltrado = PRODUCTOS.filter((elPro) => elPro.id == elId);
-  const producto = productoFiltrado[0] || null;
+  const producto = productoFiltrado[0] || 1;
+
+  const resetButtonRef = useRef(null); // Crear una referencia
+  useEffect(() => {
+    onResetForm(); // Llamada a onResetForm cuando el componente se monta
+    const timeoutId = setTimeout(() => {
+      resetButtonRef.current.click();
+    }, 100);
+
+    // Limpiar el timeout en la fase de limpieza del efecto para evitar fugas de memoria
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  //! ver que onda con el error 302, mientras tanto traigo todos y filtro por id
+  // const producto = unsoloProducto(elId);
+  console.log("EL PRODUCTO JEJJE", producto);
 
   const initialFormState = {
     id: producto.id,
     nombre: producto.nombre,
     descripcion: producto.descripcion,
     precio: producto.precio,
-    cantidadEnStock: producto.cantidadEnStock,
+    stock: producto.stock,
     estado: producto.estado,
   };
 
@@ -23,13 +44,13 @@ const editProductPage = ({ params }) => {
     nombre,
     descripcion,
     precio,
-    cantidadEnStock,
+    stock,
     estado,
     onInputChange,
     onResetForm,
   } = useForm(initialFormState);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     // Agregar lógica para manejar el envío del formulario aquí
     console.log("Formulario enviado:", {
@@ -37,13 +58,30 @@ const editProductPage = ({ params }) => {
       nombre,
       descripcion,
       precio,
-      cantidadEnStock,
+      stock,
       estado,
     });
 
-    const taTodoBien = true;
+    let response;
+    let funco;
+    try {
+      response = await axios.put("http://localhost:5000/products", {
+        id: producto.id,
+        nombre,
+        descripcion,
+        precio,
+        estado,
+        stock,
+      });
+
+      console.log("LA RESPONSE: ", response);
+      response.status === 201 ? (funco = true) : (funco = false);
+    } catch (error) {
+      console.log(error);
+    }
+
     {
-      taTodoBien
+      funco
         ? Swal.fire({
             position: "center",
             icon: "success",
@@ -76,9 +114,9 @@ const editProductPage = ({ params }) => {
           });
     }
 
-    // setTimeout(() => {
-    //   router.push("/products");
-    // }, 2000);
+    setTimeout(() => {
+      router.push("/products");
+    }, 2000);
   };
 
   return (
@@ -133,11 +171,12 @@ const editProductPage = ({ params }) => {
                 CantidadEnStock
               </label>
               <input
+                min={0}
                 className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
                 type="number"
                 placeholder="Ingresa CantidadEnStock del Producto"
-                name="cantidadEnStock"
-                value={cantidadEnStock}
+                name="stock"
+                value={stock}
                 onChange={onInputChange}
               />
             </div>
@@ -148,6 +187,7 @@ const editProductPage = ({ params }) => {
               Guardar Producto
             </button>
             <button
+              ref={resetButtonRef}
               className="btn w-fit p-3 text-2xl"
               type="button"
               onClick={onResetForm}

@@ -102,7 +102,6 @@ const CreateUserpage = () => {
       `,
           });
 
-      redireccion;
       setTimeout(() => {
         router.push("/users");
       }, 2000);

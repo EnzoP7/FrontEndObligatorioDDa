@@ -1,18 +1,28 @@
 "use client";
-import clientes from "@/data/clientes";
-import PRODUCTOS from "@/data/productos";
+
+import losClientes from "@/data/clientes";
+import losProductos from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
+import axios from "axios";
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 const createVentaPAge = () => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
 
+  const PRODUCTOS = losProductos();
+  console.log("Productos cargados:", PRODUCTOS);
+  const clientes = losClientes();
+
   const handleProductoSeleccionado = (event) => {
-    const productoId = event.target.value;
+    const productoId = parseInt(event.target.value);
+    console.log("EL TIPO DE DATO: ", typeof productoId);
+    console.log("Producto ID seleccionado:", productoId);
     const productoSeleccionado = PRODUCTOS.find(
       (producto) => producto.id === productoId
     );
+
+    console.log("Producto seleccionado:", productoSeleccionado);
 
     // Verificar si el producto ya está en la lista
     if (
@@ -23,6 +33,8 @@ const createVentaPAge = () => {
         ...productosSeleccionados,
         { ...productoSeleccionado, cantidad: 1 }, // Agregar cantidad inicial
       ]);
+
+      console.log("Productos seleccionados:", productosSeleccionados);
     }
   };
 
@@ -99,7 +111,7 @@ const createVentaPAge = () => {
     : calcularTotal();
   console.log(totalFinal);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     // Agregar lógica para manejar el envío del formulario aquí
     console.log("Formulario enviado:", {
@@ -112,7 +124,16 @@ const createVentaPAge = () => {
       totalFinal,
     });
 
-    const taTodoBien = true;
+    let response;
+    let funca;
+
+    response = await axios.post("http://localhost:5000/venta", {
+      productosSeleccionados,
+      fecha,
+      clienteId,
+    });
+
+    response.status === 201 ? (funca = true) : (funca = false);
     {
       taTodoBien
         ? Swal.fire({
@@ -191,6 +212,7 @@ const createVentaPAge = () => {
                   <div key={producto.id} className="mb-2 w-full">
                     {producto.nombre} - Cantidad:
                     <input
+                      max={producto.stock}
                       className="w-14 px-4 py-1 border rounded"
                       type="number"
                       value={producto.cantidad}

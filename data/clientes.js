@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const clientes = () => {
+const losClientes = () => {
   const [LOSCLIENTES, setClientes] = useState([]);
 
   useEffect(() => {
@@ -21,4 +21,4 @@ const clientes = () => {
   return LOSCLIENTES; // Retornar LOSCLIENTES para que puedan ser utilizados donde sea que uses este componente
 };
 
-export default clientes;
+export default losClientes;

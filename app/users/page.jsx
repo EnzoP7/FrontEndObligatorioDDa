@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import clientes from "@/data/clientes";
+import losClientes from "@/data/clientes";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -8,7 +8,7 @@ import UsuariosRegulares from "@/data/regulares";
 
 const UsersPage = () => {
   const router = useRouter();
-  const CLIENTES = clientes();
+  const CLIENTES = losClientes();
   const Regulares = UsuariosRegulares();
 
   const [Filtro, setFiltro] = useState("todos");

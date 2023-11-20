@@ -4,11 +4,13 @@ import CajitasDash from "./CajitasDash";
 import PRODUCTOS from "@/data/productos";
 import VENTAS from "@/data/ventas";
 import UsuariosVip from "@/data/VIP";
-import clientes from "@/data/clientes";
+import losClientes from "@/data/clientes";
+import losProductos from "@/data/productos";
 
 const Dashboard = () => {
-  const CLIENTES = clientes();
+  const CLIENTES = losClientes();
   const USUARIOSVIP = UsuariosVip();
+  const PRODUCTOS = losProductos();
 
   const cantidadDeProductos = PRODUCTOS.length;
   const cantidadDeUsuarios = CLIENTES.length;

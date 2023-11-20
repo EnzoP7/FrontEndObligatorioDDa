@@ -1,23 +1,28 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "@/src/hooks/useForm";
-import clientes from "@/data/clientes";
+import losClientes from "@/data/clientes";
 import Swal from "sweetalert2";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const EditUserpage = ({ params }) => {
   const elID = params.id;
+  const CLIENTES = losClientes();
+  const router = useRouter();
 
-  const elusuarioFiltrado = clientes.filter((elcli) => elcli.id == elID);
-  const usuario = elusuarioFiltrado[0] || null;
+  const elusuarioFiltrado = CLIENTES.filter((elcli) => elcli.id == elID);
+  const usuario = elusuarioFiltrado[0] || 1;
 
   const initialFormState = {
     id: usuario.id,
     nombre: usuario.nombre,
     direccion: usuario.direccion,
     telefono: usuario.telefono,
-    vip: usuario.vip,
-    fechaVip: usuario.vip?.fechaMembresia,
+    contadorCompras: usuario.contadorCompras,
+    fechaMembresia: usuario.fechaMembresia,
     estado: true,
+    vip: usuario.fechaMembresia ? true : false,
   };
 
   console.log("EL INICIAL STATE: ", initialFormState);
@@ -29,13 +34,14 @@ const EditUserpage = ({ params }) => {
     telefono,
     estado,
     vip,
-    fechaVip,
+    fechaMembresia,
+    contadorCompras,
     onInputChange,
     onResetForm,
   } = useForm(initialFormState);
 
   // Manejar el envío del formulario
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     console.log("Formulario enviado:", {
@@ -44,45 +50,137 @@ const EditUserpage = ({ params }) => {
       direccion,
       telefono,
       vip,
-      fechaVip,
+      fechaMembresia,
+      contadorCompras,
 
       estado,
     });
 
-    const taTodoBien = true;
-    {
-      taTodoBien
-        ? Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Cliente Modificado Con Exito",
-            showConfirmButton: false,
-            timer: 2000,
-            color: "info",
-            background: "#fff",
-            backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
-          })
-        : Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Algo salio Mal",
-            showConfirmButton: false,
-            timer: 2000,
-            color: "info",
-            background: "#fff",
-            backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
-          });
+    let response;
+    let response2xd;
+    let funco;
+
+    //! CASO 1 ERA VIP Y SIGUE SIENDO VIP
+
+    if (vip && usuario.fechaMembresia) {
+      try {
+        response = await axios.put("http://localhost:5000/clients/vip", {
+          id,
+          nombre,
+          direccion,
+          telefono,
+          estado,
+          contadorCompras,
+          fechaMembresia,
+        });
+        console.log("LA RESPONSE: ", response);
+        response.status === 201 ? (funco = true) : (funco = false);
+      } catch (error) {
+        console.log(error);
+      }
     }
+
+    //! CASO 2 ES REGULAR Y SIGUE REGULAR
+    if (!vip && !usuario.fechaMembresia) {
+      try {
+        response = await axios.put("http://localhost:5000/clients", {
+          id,
+          nombre,
+          direccion,
+          telefono,
+          estado,
+          contadorCompras,
+        });
+
+        console.log("LA RESPONSE: ", response);
+        response.status === 201 ? (funco = true) : (funco = false);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    //! CASO 3 ERA REGULAR Y AHORA ES VIP
+    if (vip && !usuario.fechaMembresia) {
+      try {
+        response = await axios.delete(
+          `http://localhost:5000/clients/eliminarCliente?id=${id}`
+        );
+        console.log("LA RESPONSE: ", response);
+        if (response.status === 200) {
+          response2xd = await axios.post("http://localhost:5000/clients/vip", {
+            id,
+            nombre,
+            direccion,
+            telefono,
+            estado,
+            contadorCompras,
+            fechaMembresia,
+          });
+          response2xd.status === 201 ? (funco = true) : (funco = false);
+          console.log("LA RESPONSE2XD: ", response2xd);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    //! CASO 4 ERA VIP Y AHORA ES REGULAR
+    if (!vip && usuario.fechaMembresia) {
+      try {
+        response = await axios.delete(
+          `http://localhost:5000/clients/eliminarCliente?id=${id}`
+        );
+        console.log("LA RESPONSE: ", response);
+        if (response.status === 200) {
+          response2xd = await axios.post("http://localhost:5000/clients", {
+            id,
+            nombre,
+            direccion,
+            telefono,
+            estado,
+            contadorCompras,
+          });
+
+          response2xd.status === 201 ? (funco = true) : (funco = false);
+          console.log("LA RESPONSE2XD: ", response2xd);
+        } else funco = false;
+      } catch (error) {
+        console.log("EL ERROR: ", error);
+      }
+    }
+
+    funco
+      ? Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Cliente Modificado Con Exito",
+          showConfirmButton: false,
+          timer: 2000,
+          color: "info",
+          background: "#fff",
+          backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        })
+      : Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Algo salio Mal",
+          showConfirmButton: false,
+          timer: 2000,
+          color: "info",
+          background: "#fff",
+          backdrop: `
+          rgba(0,0,123,0.4)
+          url("/cat.gif")
+          left top
+          no-repeat
+        `,
+        });
+
     // redireccion
     // setTimeout(() => {
     //   router.push("/users");
@@ -90,6 +188,17 @@ const EditUserpage = ({ params }) => {
 
     // 2000 milisegundos = 2 segundos
   };
+
+  const resetButtonRef = useRef(null); // Crear una referencia
+  useEffect(() => {
+    onResetForm(); // Llamada a onResetForm cuando el componente se monta
+    const timeoutId = setTimeout(() => {
+      resetButtonRef.current.click();
+    }, 100);
+
+    // Limpiar el timeout en la fase de limpieza del efecto para evitar fugas de memoria
+    return () => clearTimeout(timeoutId);
+  }, []);
   return (
     <>
       <div>
@@ -160,7 +269,7 @@ const EditUserpage = ({ params }) => {
                 </select>
               </div>
 
-              {vip === "true" && (
+              {vip && (
                 <>
                   <div>
                     <label className="text-xl p-4 flex justify-center">
@@ -169,8 +278,8 @@ const EditUserpage = ({ params }) => {
                     <input
                       className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center   "
                       type="date"
-                      name="fechaVip" // Corregido de fechaVeip a fechaVip
-                      value={fechaVip}
+                      name="fechaMembresia" // Corregido de fechaVeip a fechaVip
+                      value={fechaMembresia}
                       onChange={onInputChange}
                     />
                   </div>
@@ -194,6 +303,7 @@ const EditUserpage = ({ params }) => {
                 Modificar Cliente
               </button>
               <button
+                ref={resetButtonRef}
                 className="btn w-fit p-3 text-2xl"
                 type="button"
                 onClick={onResetForm}

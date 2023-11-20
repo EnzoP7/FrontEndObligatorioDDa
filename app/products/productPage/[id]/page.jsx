@@ -1,6 +1,5 @@
 "use client";
 
-import PRODUCTOS from "@/data/productos";
 import React, { useEffect, useState } from "react";
 import { FaBagShopping } from "react-icons/fa6";
 import { RiMoneyDollarCircleFill } from "react-icons/ri";
@@ -11,17 +10,20 @@ import { TbShoppingCartCheck } from "react-icons/tb";
 import VENTAS from "@/data/ventas";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import losProductos from "@/data/productos";
+import axios from "axios";
 
 const Productpage = ({ params }) => {
   const elId = params.id;
   const [selectedProducto, setSelectedProducto] = useState(null);
+  const PRODUCTOS = losProductos();
 
   const router = useRouter();
 
   const productoFiltrado = PRODUCTOS.filter(
     (elProducto) => elProducto.id == elId
   );
-  const producto = productoFiltrado[0] || null;
+  const producto = productoFiltrado[0] || 1;
 
   const ventasConElProducto = VENTAS.filter((laVenta) =>
     laVenta.productos.some((producto) => producto.productoId == elId)
@@ -43,8 +45,22 @@ const Productpage = ({ params }) => {
     }, 0);
   };
 
-  const eliminarProducto = () => {
+  const eliminarProducto = async () => {
     //! aca hacemos la peticion a la api pa borrar
+
+    if (selectedProducto) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/products/eliminarProducto?id=${selectedProducto.id}`
+        );
+        let funco;
+        console.log("LA RESPONSE: ", response);
+        response.status === 200 ? (funco = true) : (funco = false);
+        return funco;
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     console.log(
       "id de Producto eliminado: ",
@@ -88,15 +104,22 @@ const Productpage = ({ params }) => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          eliminarProducto();
+          const resultado = eliminarProducto();
           setSelectedProducto(null);
-          swalWithBootstrapButtons.fire({
-            title: "¡Eliminado!",
-            text: `El Producto ${
-              selectedProducto ? selectedProducto.nombre : ""
-            } ha sido eliminado.`,
-            icon: "success",
-          });
+
+          resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "¡Eliminado!",
+                text: `El Producto ${
+                  selectedProducto ? selectedProducto.nombre : ""
+                } ha sido eliminado.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "Hubo un error",
+                text: `El servidor ha fallado`,
+                icon: "error",
+              });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedProducto(null);
           swalWithBootstrapButtons.fire({
@@ -105,6 +128,10 @@ const Productpage = ({ params }) => {
             icon: "error",
           });
         }
+
+        const redireccion = setTimeout(() => {
+          router.push("/products");
+        }, 2000);
       });
   };
 
@@ -153,15 +180,12 @@ const Productpage = ({ params }) => {
               <MdOutlineProductionQuantityLimits size={50} />
             </p>
             <h1 className="text-3xl">
-              <span className="font-semibold ">
-                {" "}
-                Stock {producto.cantidadEnStock}u{" "}
-              </span>
+              <span className="font-semibold "> Stock {producto.stock} </span>
             </h1>
           </div>
         </div>
 
-        <div className="flex justify-between text-center">
+        <div className="flex justify-center text-center">
           <div className="p-10">
             <h3 className="text-4xl pb-3">Descripcción</h3>
             <p className="text-lg">{producto.descripcion}</p>
@@ -187,6 +211,7 @@ const Productpage = ({ params }) => {
                 className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer"
                 onClick={() => {
                   setSelectedProducto(producto);
+                  handleDeleteConfirmation();
                 }}
               >
                 <p className="flex justify-center items-center mb-5">

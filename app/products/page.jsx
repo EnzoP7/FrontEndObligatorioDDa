@@ -1,10 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import PRODUCTOS from "@/data/productos";
+import axios from "axios";
+
 import Swal from "sweetalert2";
+import losProductos from "@/data/productos";
 const Productspage = () => {
   const router = useRouter();
+  const PRODUCTOS = losProductos();
 
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaNombre, setBusquedaNombre] = useState("");
@@ -17,10 +20,10 @@ const Productspage = () => {
         return PRODUCTOS;
       case "hay":
         return PRODUCTOS.filter(
-          (producto) => producto.cantidadEnStock > 0 && producto.estado
+          (producto) => producto.stock > 0 && producto.estado
         );
       case "nohay":
-        return PRODUCTOS.filter((producto) => producto.cantidadEnStock === 0);
+        return PRODUCTOS.filter((producto) => producto.stock === 0);
       case "debaja":
         return PRODUCTOS.filter((producto) => !producto.estado);
 
@@ -35,7 +38,7 @@ const Productspage = () => {
       case "cantidad":
         return PRODUCTOS.filter((producto) => {
           console.log(busquedaNombre);
-          return producto.cantidadEnStock < busquedaCantidad;
+          return producto.stock < busquedaCantidad;
         });
       default:
         return PRODUCTOS;
@@ -56,8 +59,20 @@ const Productspage = () => {
     }
   }
 
-  const eliminarProducto = () => {
-    //! aca hacemos la peticion a la api pa borrar
+  const eliminarProducto = async () => {
+    if (selectedProducto) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/products/eliminarProducto?id=${selectedProducto.id}`
+        );
+        let funco;
+        console.log("LA RESPONSE: ", response);
+        response.status === 200 ? (funco = true) : (funco = false);
+        return funco;
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     console.log(
       "id de Producto eliminado: ",
@@ -101,15 +116,21 @@ const Productspage = () => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          eliminarProducto();
+          const resultado = eliminarProducto();
           setSelectedProducto(null);
-          swalWithBootstrapButtons.fire({
-            title: "¡Eliminado!",
-            text: `El Producto ${
-              selectedProducto ? selectedProducto.nombre : ""
-            } ha sido eliminado.`,
-            icon: "success",
-          });
+          resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "¡Eliminado!",
+                text: `El Producto ${
+                  selectedProducto ? selectedProducto.nombre : ""
+                } ha sido eliminado.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "ALGO SALIO MAL ",
+                text: `El servidor fallo.`,
+                icon: "error",
+              });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedProducto(null);
           swalWithBootstrapButtons.fire({
@@ -118,6 +139,9 @@ const Productspage = () => {
             icon: "error",
           });
         }
+        const redireccion = setTimeout(() => {
+          router.push("/products");
+        }, 2000);
       });
   };
 
@@ -212,16 +236,16 @@ const Productspage = () => {
             </thead>
             <tbody>
               {productosFiltrados.map((producto) => (
-                <tr key={producto._id}>
+                <tr key={producto.id}>
                   <td className="border p-4">{producto.id} </td>
                   <td className="border p-4">{producto.nombre} </td>
                   <td className="border p-4">
                     {limitarPalabras(producto.descripcion, 15)}{" "}
                   </td>
                   <td className="border p-4">{producto.precio} </td>
-                  <td className="border p-4">{producto.cantidadEnStock} </td>
+                  <td className="border p-4">{producto.stock} </td>
                   <td className="border p-4">
-                    {producto.estado ? (
+                    {producto.estado && producto.stock > 0 ? (
                       <span className="text-green-600">Disponible</span>
                     ) : (
                       <span className="text-red-600">No Disponible</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import clientes from "@/data/clientes";
+import axios from "axios";
 import {
   FaUser,
   FaMapMarkerAlt,
@@ -15,15 +15,22 @@ import VENTAS from "@/data/ventas";
 import PRODUCTOS from "@/data/productos";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import losClientes from "@/data/clientes";
 
 const UsuarioPage = ({ params }) => {
   const router = useRouter();
   const [selectedClient, setSelectedClient] = useState(null);
   const [selectedVIP, setSelectedVIP] = useState(null);
+  // const [cliente, setcliente] = useState("");
 
   const elId = params.id;
-  const clienteFiltrado = clientes.filter((elCliente) => elCliente.id == elId);
-  const cliente = clienteFiltrado[0] || null;
+
+  const CLIENTES = losClientes();
+  const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
+  const cliente = clienteFiltrado[0] || 1;
+
+  console.log("QUE VIENE EN CLIENTE: ", cliente);
+
   const ventasAlCliente = VENTAS.filter((laVenta) => laVenta.clienteId == elId);
 
   const buscarProducto = (productoId) => {
@@ -78,15 +85,22 @@ const UsuarioPage = ({ params }) => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          eliminarCliente();
+          const Resultado = eliminarCliente();
           setSelectedClient(null);
-          swalWithBootstrapButtons.fire({
-            title: "¡Eliminado!",
-            text: `El usuario ${
-              selectedClient ? selectedClient.nombre : ""
-            } ha sido eliminado.`,
-            icon: "success",
-          });
+
+          Resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "¡Eliminado!",
+                text: `El usuario ${
+                  selectedClient ? selectedClient.nombre : ""
+                } ha sido eliminado.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "Algo salio mal",
+                text: `El servidor ha fallado`,
+                icon: "error",
+              });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedClient(null);
           swalWithBootstrapButtons.fire({
@@ -95,6 +109,10 @@ const UsuarioPage = ({ params }) => {
             icon: "error",
           });
         }
+
+        const redireccion = setTimeout(() => {
+          router.push("/users");
+        }, 2000);
       });
   };
 
@@ -112,7 +130,7 @@ const UsuarioPage = ({ params }) => {
         title: `¿Estás seguro?\nTansformar en VIP a  ${
           selectedVIP ? selectedVIP.nombre : ""
         }`,
-        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        text: "Se Pasara a USUARIO VIP",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Sí, pasar a VIP",
@@ -134,15 +152,22 @@ const UsuarioPage = ({ params }) => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          convertirVIP();
+          const Resultado = convertirVIP();
           setSelectedVIP(null);
-          swalWithBootstrapButtons.fire({
-            title: "Ahora es VIP :)",
-            text: `El usuario ${
-              selectedVIP ? selectedVIP.nombre : ""
-            } ha sido VIPEADO.`,
-            icon: "success",
-          });
+
+          Resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "Ahora es VIP :)",
+                text: `El usuario ${
+                  selectedVIP ? selectedVIP.nombre : ""
+                } ha sido VIPEADO.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "Algo salio mal",
+                text: `El servidor Fallo`,
+                icon: "error",
+              });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedVIP(null);
           swalWithBootstrapButtons.fire({
@@ -151,11 +176,28 @@ const UsuarioPage = ({ params }) => {
             icon: "error",
           });
         }
+
+        const redireccion = setTimeout(() => {
+          router.push("/users");
+        }, 2000);
       });
   };
 
-  const eliminarCliente = () => {
+  const eliminarCliente = async () => {
     //! aca hacemos la peticion a la api pa borrar
+    if (selectedClient) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/clients/eliminarCliente?id=${selectedClient.id}`
+        );
+        let funco;
+        console.log("LA RESPONSE: ", response);
+        response.status === 200 ? (funco = true) : (funco = false);
+        return funco;
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     console.log(
       "id de cliente eliminado: ",
@@ -163,7 +205,45 @@ const UsuarioPage = ({ params }) => {
     );
   };
 
-  const convertirVIP = () => {
+  const obtenerFechaActual = () => {
+    const fecha = new Date();
+
+    const año = fecha.getFullYear();
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, "0"); // Los meses comienzan desde 0
+    const dia = fecha.getDate().toString().padStart(2, "0");
+
+    const fechaFormateada = `${año}-${mes}-${dia}`;
+    return fechaFormateada;
+  };
+
+  const convertirVIP = async () => {
+    let response;
+    let response2xd;
+    let funco;
+    if (selectedVIP) {
+      try {
+        response = await axios.delete(
+          `http://localhost:5000/clients/eliminarCliente?id=${elId}`
+        );
+        console.log("LA RESPONSE: ", response);
+        if (response.status === 200) {
+          response2xd = await axios.post("http://localhost:5000/clients/vip", {
+            elId,
+            nombre: cliente.nombre,
+            telefono: cliente.telefono,
+            estado: cliente.estado,
+            contadorCompras: cliente.contadorCompras,
+            fechaMembresia: obtenerFechaActual(),
+          });
+          response2xd.status === 201 ? (funco = true) : (funco = false);
+          console.log("LA RESPONSE2XD: ", response2xd);
+          return funco;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     console.log("ID CLIENTE A VIP: ", selectedVIP ? selectedVIP.id : null);
   };
 
@@ -199,11 +279,11 @@ const UsuarioPage = ({ params }) => {
               <FaUser size={50} />
             </p>
             <h1 className="text-3xl">
-              <span className="font-semibold "> {cliente.nombre} </span>
+              <span className="font-semibold "> {cliente.nombre}</span>
             </h1>
           </div>
 
-          {cliente.vip ? (
+          {cliente.fechaMembresia ? (
             <div className="bg-base-content p-5 rounded-lg">
               <p className="flex justify-center items-center mb-5">
                 <RiVipCrown2Fill size={50} />
@@ -257,7 +337,7 @@ const UsuarioPage = ({ params }) => {
                   <span className="font-semibold ">Modificar</span>
                 </h1>
               </div>
-              {!cliente.vip ? (
+              {!cliente.fechaMembresia ? (
                 <div
                   className="bg-yellow-400 p-5 rounded-lg hover:scale-105 cursor-pointer"
                   onClick={() => {
@@ -278,6 +358,7 @@ const UsuarioPage = ({ params }) => {
                 className="bg-red-600 p-5 rounded-lg hover:scale-105 cursor-pointer"
                 onClick={() => {
                   setSelectedClient(cliente);
+                  handleDeleteConfirmation();
                 }}
               >
                 <p className="flex justify-center items-center mb-5">

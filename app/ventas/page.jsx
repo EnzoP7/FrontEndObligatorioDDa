@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import VENTAS from "@/data/ventas";
+
 import PRODUCTOS from "@/data/productos";
 import Swal from "sweetalert2";
+import ventas from "@/data/ventas";
 
 const Ventaspage = () => {
   const router = useRouter();
@@ -11,6 +12,8 @@ const Ventaspage = () => {
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaFecha, setBusquedaFecha] = useState("");
   const [selectedVenta, setSelectedVenta] = useState(null);
+
+  const VENTAS = ventas();
 
   const filtrarVentas = () => {
     switch (Filtro) {
