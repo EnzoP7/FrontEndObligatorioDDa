@@ -127,46 +127,53 @@ const createVentaPAge = () => {
     let response;
     let funca;
 
-    response = await axios.post("http://localhost:5000/venta", {
-      productosSeleccionados,
-      fecha,
-      clienteId,
-    });
+    try {
+      response = await axios.post("http://localhost:5000/venta", {
+        productosSeleccionados,
+        fecha,
+        clienteId,
+      });
+
+      // ... rest of your code ...
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Handle the error (e.g., show an error message to the user)
+    }
 
     response.status === 201 ? (funca = true) : (funca = false);
-    {
-      taTodoBien
-        ? Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Venta Ingresada Con Exito",
-            showConfirmButton: false,
-            timer: 2000,
-            color: "info",
-            background: "#fff",
-            backdrop: `
+
+    funca
+      ? Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Venta Ingresada Con Exito",
+          showConfirmButton: false,
+          timer: 2000,
+          color: "info",
+          background: "#fff",
+          backdrop: `
           rgba(0,0,123,0.4)
           url("/cat.gif")
           left top
           no-repeat
         `,
-          })
-        : Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Algo salio Mal",
-            showConfirmButton: false,
-            timer: 2000,
-            color: "info",
-            background: "#fff",
-            backdrop: `
+        })
+      : Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Algo salio Mal",
+          showConfirmButton: false,
+          timer: 2000,
+          color: "info",
+          background: "#fff",
+          backdrop: `
           rgba(0,0,123,0.4)
           url("/cat.gif")
           left top
           no-repeat
         `,
-          });
-    }
+        });
+
     // redireccion
     // setTimeout(() => {
     //   router.push("/ventas");
