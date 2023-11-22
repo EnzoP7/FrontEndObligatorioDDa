@@ -25,7 +25,7 @@ const EditUserpage = ({ params }) => {
     vip: usuario.fechaMembresia ? true : false,
   };
 
-  console.log("EL INICIAL STATE: ", initialFormState);
+  // console.log("EL INICIAL STATE: ", initialFormState);
   // Utilizar el hook useForm para manejar el estado del formulario
   const {
     id,
@@ -62,7 +62,8 @@ const EditUserpage = ({ params }) => {
 
     //! CASO 1 ERA VIP Y SIGUE SIENDO VIP
 
-    if (vip && usuario.fechaMembresia) {
+    if (vip === true && usuario.fechaMembresia) {
+      console.log("EL VIP DEL CASO 1 : ", vip);
       try {
         response = await axios.put("http://localhost:5000/clients/vip", {
           id,
@@ -73,6 +74,7 @@ const EditUserpage = ({ params }) => {
           contadorCompras,
           fechaMembresia,
         });
+        console.log("CASO 1");
         console.log("LA RESPONSE: ", response);
         response.status === 201 ? (funco = true) : (funco = false);
       } catch (error) {
@@ -81,7 +83,7 @@ const EditUserpage = ({ params }) => {
     }
 
     //! CASO 2 ES REGULAR Y SIGUE REGULAR
-    if (!vip && !usuario.fechaMembresia) {
+    else if (!vip && !usuario.fechaMembresia) {
       try {
         response = await axios.put("http://localhost:5000/clients", {
           id,
@@ -91,7 +93,7 @@ const EditUserpage = ({ params }) => {
           estado,
           contadorCompras,
         });
-
+        console.log("CASO 2");
         console.log("LA RESPONSE: ", response);
         response.status === 201 ? (funco = true) : (funco = false);
       } catch (error) {
@@ -100,11 +102,12 @@ const EditUserpage = ({ params }) => {
     }
 
     //! CASO 3 ERA REGULAR Y AHORA ES VIP
-    if (vip && !usuario.fechaMembresia) {
+    else if (vip && !usuario.fechaMembresia) {
       try {
         response = await axios.delete(
           `http://localhost:5000/clients/eliminarCliente?id=${id}`
         );
+        console.log("CASO 3");
         console.log("LA RESPONSE: ", response);
         if (response.status === 200) {
           response2xd = await axios.post("http://localhost:5000/clients/vip", {
@@ -125,11 +128,12 @@ const EditUserpage = ({ params }) => {
     }
 
     //! CASO 4 ERA VIP Y AHORA ES REGULAR
-    if (!vip && usuario.fechaMembresia) {
+    else if (vip === "false" && usuario.fechaMembresia) {
       try {
         response = await axios.delete(
           `http://localhost:5000/clients/eliminarCliente?id=${id}`
         );
+        console.log("CASO 4");
         console.log("LA RESPONSE: ", response);
         if (response.status === 200) {
           response2xd = await axios.post("http://localhost:5000/clients", {
@@ -145,7 +149,7 @@ const EditUserpage = ({ params }) => {
           console.log("LA RESPONSE2XD: ", response2xd);
         } else funco = false;
       } catch (error) {
-        console.log("EL ERROR: ", error);
+        console.log("EL ERROR: ", error.message);
       }
     }
 
@@ -182,9 +186,9 @@ const EditUserpage = ({ params }) => {
         });
 
     // redireccion
-    // setTimeout(() => {
-    //   router.push("/users");
-    // }, 2000);
+    setTimeout(() => {
+      router.push("/users");
+    }, 2000);
 
     // 2000 milisegundos = 2 segundos
   };

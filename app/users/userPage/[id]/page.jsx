@@ -11,11 +11,12 @@ import {
   FaUserMinus,
 } from "react-icons/fa";
 import { RiVipCrown2Fill } from "react-icons/ri";
-import VENTAS from "@/data/ventas";
+
 import PRODUCTOS from "@/data/productos";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import losClientes from "@/data/clientes";
+import ventas from "@/data/ventas";
 
 const UsuarioPage = ({ params }) => {
   const router = useRouter();
@@ -25,6 +26,7 @@ const UsuarioPage = ({ params }) => {
 
   const elId = params.id;
 
+  const VENTAS = ventas();
   const CLIENTES = losClientes();
   const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
   const cliente = clienteFiltrado[0] || 1;
