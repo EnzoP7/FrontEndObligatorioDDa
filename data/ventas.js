@@ -3,19 +3,19 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const ventas = () => {
-  const [lasVentas, setLasVEntas] = useState([]);
+  const [lasVentas, setLasVentas] = useState([]);
 
   useEffect(() => {
-    const fetchClientes = async () => {
+    const fetchVentas = async () => {
       try {
         const response = await axios.get("http://localhost:5000/venta");
-        setLasVEntas(response.data);
+        setLasVentas(response.data);
       } catch (error) {
-        console.error("Error fetching clientes:", error);
+        console.error("Error fetching ventas:", error);
       }
     };
 
-    fetchClientes();
+    fetchVentas();
   }, []);
 
   return lasVentas;

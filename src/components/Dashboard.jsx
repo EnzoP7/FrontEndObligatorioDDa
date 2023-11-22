@@ -2,10 +2,11 @@
 import React from "react";
 import CajitasDash from "./CajitasDash";
 import PRODUCTOS from "@/data/productos";
-import VENTAS from "@/data/ventas";
+
 import UsuariosVip from "@/data/VIP";
 import losClientes from "@/data/clientes";
 import losProductos from "@/data/productos";
+import ventas from "@/data/ventas";
 
 const Dashboard = () => {
   const CLIENTES = losClientes();
@@ -15,7 +16,7 @@ const Dashboard = () => {
   const cantidadDeProductos = PRODUCTOS.length;
   const cantidadDeUsuarios = CLIENTES.length;
 
-  const CantidadVentas = VENTAS.length;
+  const CantidadVentas = ventas();
 
   return (
     <div className="mt-20">
@@ -41,7 +42,7 @@ const Dashboard = () => {
           />
           <CajitasDash
             logo="shoppingCart"
-            numero={CantidadVentas}
+            numero={CantidadVentas.length}
             titulo="Ventas Realizadas"
             ruta="/ventas"
           />

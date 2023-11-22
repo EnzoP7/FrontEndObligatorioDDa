@@ -1,6 +1,8 @@
 "use client";
-import PRODUCTOS from "@/data/productos";
-import VENTAS from "@/data/ventas";
+
+import losProductos from "@/data/productos";
+import ventas from "@/data/ventas";
+
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -15,9 +17,15 @@ const Ventapage = ({ params }) => {
   const router = useRouter();
   const [selectedVenta, setSelectedVenta] = useState(null);
 
+  const PRODUCTOS = losProductos();
+  console.log("LOS PRODUCTOS XD: ", PRODUCTOS);
+  const VENTAS = ventas();
+  console.log("LAS VENTAS QUE VIENEN: ", VENTAS);
+
   const ventaFiltrada = VENTAS.filter((laVenta) => laVenta.id == elId);
 
   const venta = ventaFiltrada[0] || null;
+  console.log("LA VENTA FILTRADA: ", venta);
 
   const calcularTotal = (productos) => {
     return productos.reduce((total, producto) => {

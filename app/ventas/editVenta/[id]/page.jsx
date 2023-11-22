@@ -2,13 +2,16 @@
 
 import losClientes from "@/data/clientes";
 import PRODUCTOS from "@/data/productos";
+import ventas from "@/data/ventas";
 import { useForm } from "@/src/hooks/useForm";
 import React, { useState, useEffect } from "react";
-import VENTAS from "@/data/ventas";
+
 import Swal from "sweetalert2";
 
 const editVentaPage = ({ params }) => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const VENTAS = ventas();
+  console.log("VENTAS EM EDIT QUE VIENEN: ", VENTAS);
 
   const elId = params.id;
   const ventaFiltrada = VENTAS.filter((laVenta) => laVenta.id == elId);

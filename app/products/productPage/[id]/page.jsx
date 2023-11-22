@@ -7,16 +7,20 @@ import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { TbShoppingCartCog } from "react-icons/tb";
 import { TbShoppingBagX } from "react-icons/tb";
 import { TbShoppingCartCheck } from "react-icons/tb";
-import VENTAS from "@/data/ventas";
+
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import losProductos from "@/data/productos";
 import axios from "axios";
+import ventas from "@/data/ventas";
 
 const Productpage = ({ params }) => {
   const elId = params.id;
+  console.log("el id: ", elId);
   const [selectedProducto, setSelectedProducto] = useState(null);
   const PRODUCTOS = losProductos();
+  const VENTAS = ventas();
+  console.log("LAS VENTAS: ", VENTAS);
 
   const router = useRouter();
 
@@ -25,9 +29,16 @@ const Productpage = ({ params }) => {
   );
   const producto = productoFiltrado[0] || 1;
 
-  const ventasConElProducto = VENTAS.filter((laVenta) =>
-    laVenta.productos.some((producto) => producto.productoId == elId)
-  );
+  const ventasConElProducto = VENTAS.filter((laVenta) => {
+    return laVenta.lista.some((item) => {
+      const esIgual = item.producto.id === Number(elId);
+      console.log("PRODUCTO ID: ", item.producto.id);
+      console.log("El ID QUE TENEMOS: ", elId);
+      console.log("¿Es igual?", esIgual);
+      return esIgual;
+    });
+  });
+  console.log("VENTAS CON EL PRODUCTO: ", ventasConElProducto);
 
   const buscarProducto = (productoId) => {
     const elProductoFiltrado = PRODUCTOS.find(
@@ -37,13 +48,13 @@ const Productpage = ({ params }) => {
     return elProducto;
   };
 
-  const calcularTotal = (productos) => {
-    return productos.reduce((total, producto) => {
-      const precioProducto =
-        PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
-      return total + precioProducto * producto.cantidad;
-    }, 0);
-  };
+  // const calcularTotal = (productos) => {
+  //   return productos.reduce((total, producto) => {
+  //     const precioProducto =
+  //       PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
+  //     return total + precioProducto * producto.cantidad;
+  //   }, 0);
+  // };
 
   const eliminarProducto = async () => {
     //! aca hacemos la peticion a la api pa borrar
@@ -261,20 +272,18 @@ const Productpage = ({ params }) => {
                       <td className="border p-4">{venta.id}</td>
                       <td className="border p-4">
                         <ul>
-                          {venta.productos.map((producto) => (
-                            <li key={producto.productoId}>
+                          {venta.lista.map((item) => (
+                            <li key={item.producto.id}>
                               {`Producto: ${buscarProducto(
-                                producto.productoId
-                              )} Cantidad: ${producto.cantidad}`}
+                                item.producto.id
+                              )} Cantidad: ${item.producto.stock}`}
                             </li>
                           ))}
                         </ul>
                       </td>
                       <td className="border p-4">{venta.fecha}</td>
-                      <td className="border p-4">{venta.clienteId}</td>
-                      <td className="border p-4">
-                        ${calcularTotal(venta.productos)}
-                      </td>
+                      <td className="border p-4">{venta.cli.id}</td>
+                      <td className="border p-4">${venta.total}</td>
                     </tr>
                   ))}
                 </tbody>

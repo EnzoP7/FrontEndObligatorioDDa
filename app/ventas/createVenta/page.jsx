@@ -4,11 +4,14 @@ import losClientes from "@/data/clientes";
 import losProductos from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 const createVentaPAge = () => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+
+  const router = useRouter();
 
   const PRODUCTOS = losProductos();
   console.log("Productos cargados:", PRODUCTOS);
@@ -103,8 +106,8 @@ const createVentaPAge = () => {
   const clienteDeLaCompra = buscarCliente(clienteId);
   const tiene3Compras =
     clienteDeLaCompra &&
-    clienteDeLaCompra.vip &&
-    clienteDeLaCompra.vip.contadorCompras === 3;
+    clienteDeLaCompra.fechaMembresia &&
+    clienteDeLaCompra.contadorCompras % 3 == 0;
 
   const totalFinal = tiene3Compras
     ? totalConDescuentoPorVIP()
@@ -113,15 +116,28 @@ const createVentaPAge = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    // Agregar lógica para manejar el envío del formulario aquí
+
+    const productosParaEnviar = productosSeleccionados.map((producto) => ({
+      producto: {
+        id: producto.id,
+        nombre: producto.nombre,
+        descripcion: producto.descripcion,
+        precio: producto.precio,
+        estado: producto.estado,
+        stock: producto.stock,
+      },
+      cantidad: producto.cantidad,
+    }));
+
     console.log("Formulario enviado:", {
       id: "1",
 
       fecha, // Puedes utilizar un formato de fecha adecuado para tu aplicación
       clienteId,
+      cli: buscarCliente(clienteId),
 
-      productosSeleccionados,
-      totalFinal,
+      lista: productosParaEnviar,
+      total: totalFinal,
     });
 
     let response;
@@ -129,18 +145,19 @@ const createVentaPAge = () => {
 
     try {
       response = await axios.post("http://localhost:5000/venta", {
-        productosSeleccionados,
+        lista: productosParaEnviar,
         fecha,
-        clienteId,
+        total: totalFinal,
+        cli: buscarCliente(clienteId),
       });
+      response.status === 201 ? (funca = true) : (funca = false);
+      console.log("LA RESOINSE: ", response);
 
       // ... rest of your code ...
     } catch (error) {
       console.error("Error submitting form:", error);
       // Handle the error (e.g., show an error message to the user)
     }
-
-    response.status === 201 ? (funca = true) : (funca = false);
 
     funca
       ? Swal.fire({
@@ -175,9 +192,9 @@ const createVentaPAge = () => {
         });
 
     // redireccion
-    // setTimeout(() => {
-    //   router.push("/ventas");
-    // }, 2000);
+    setTimeout(() => {
+      router.push("/ventas");
+    }, 2000);
 
     // 2000 milisegundos = 2 segundos
   };

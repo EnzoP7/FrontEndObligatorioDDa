@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import PRODUCTOS from "@/data/productos";
 import Swal from "sweetalert2";
 import ventas from "@/data/ventas";
+import losProductos from "@/data/productos";
+import axios from "axios";
 
 const Ventaspage = () => {
   const router = useRouter();
@@ -14,6 +15,8 @@ const Ventaspage = () => {
   const [selectedVenta, setSelectedVenta] = useState(null);
 
   const VENTAS = ventas();
+  console.log("LAS VENTAS ACA: ", VENTAS);
+  const PRODUCTOS = losProductos();
 
   const filtrarVentas = () => {
     switch (Filtro) {
@@ -36,29 +39,38 @@ const Ventaspage = () => {
 
   const ventasFiltradas = filtrarVentas();
 
-  const buscarProducto = (productoId) => {
+  const buscarProducto = (id) => {
     const elProductoFiltrado = PRODUCTOS.find(
-      (elProducto) => elProducto.id === productoId
+      (elProducto) => elProducto.id === id
     );
     const elProducto = elProductoFiltrado?.nombre || "no se encontró";
     return elProducto;
   };
 
-  const calcularTotal = (productos) => {
-    return productos.reduce((total, producto) => {
-      const precioProducto =
-        PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
-      return total + precioProducto * producto.cantidad;
-    }, 0);
-  };
+  // const calcularTotal = (productos) => {
+  //   return productos.reduce((total, producto) => {
+  //     const precioProducto =
+  //       PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
+  //     return total + precioProducto * producto.cantidad;
+  //   }, 0);
+  // };
 
-  const eliminarVenta = () => {
-    //! aca hacemos la peticion a la api pa borrar
+  const eliminarVenta = async () => {
+    try {
+      if (selectedVenta) {
+        const response = await axios.delete(
+          `http://localhost:5000/venta?id=${selectedVenta.id}`
+        );
 
-    console.log(
-      "id de VENTA eliminado: ",
-      selectedVenta ? selectedVenta.id : null
-    );
+        console.log("la bella response xd", response);
+
+        // Revisa el status de la respuesta, no la promesa directamente
+        return response.status === 200;
+      }
+    } catch (error) {
+      console.log(error);
+      return false; // Si hay un error, asumimos que no se eliminó correctamente
+    }
   };
 
   const handleDeleteConfirmation = () => {
@@ -97,15 +109,23 @@ const Ventaspage = () => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          eliminarVenta();
+          const resultado = eliminarVenta();
+          console.log("EL RESULTADO: ", resultado);
           setSelectedVenta(null);
-          swalWithBootstrapButtons.fire({
-            title: "¡Eliminado!",
-            text: `La Venta ${
-              selectedVenta ? selectedVenta.id : ""
-            } ha sido eliminada.`,
-            icon: "success",
-          });
+
+          resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "¡Eliminado!",
+                text: `La Venta ${
+                  selectedVenta ? selectedVenta.id : ""
+                } ha sido eliminada.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "Algo salio mal",
+                text: `El servidor fallo`,
+                icon: "error",
+              });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedVenta(null);
           swalWithBootstrapButtons.fire({
@@ -115,6 +135,9 @@ const Ventaspage = () => {
           });
         }
       });
+    setTimeout(() => {
+      router.push("/");
+    }, 2000);
   };
 
   useEffect(() => {
@@ -175,21 +198,19 @@ const Ventaspage = () => {
                   <td className="border p-4">{venta.id}</td>
                   <td className="border p-4">
                     <ul>
-                      {venta.productos.map((producto) => (
-                        <li key={producto.productoId}>
+                      {venta.lista.map((lista) => (
+                        <li key={lista.producto.id}>
                           {`Producto: ${buscarProducto(
-                            producto.productoId
-                          )} Cantidad: ${producto.cantidad}`}
+                            lista.producto.id
+                          )} Cantidad: ${lista.cantidad}`}
                         </li>
                       ))}
                     </ul>
                   </td>
 
                   <td className="border p-4">{venta.fecha}</td>
-                  <td className="border p-4">{venta.clienteId}</td>
-                  <td className="border p-4">
-                    ${calcularTotal(venta.productos)}
-                  </td>
+                  <td className="border p-4">{venta.cli.id}</td>
+                  <td className="border p-4">{venta.total}</td>
                   <td className="border p-4">
                     <div className="flex justify-between">
                       <button
