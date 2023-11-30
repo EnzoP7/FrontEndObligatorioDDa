@@ -283,6 +283,7 @@ const createVentaPAge = () => {
                 value={clienteId}
                 onChange={onInputChange}
               >
+                <option>Seleccione Cliente</option>
                 {usuariosFiltrados.map((cliente) => (
                   <option value={cliente.id} key={cliente.id}>
                     {cliente.id} {cliente.nombre}
