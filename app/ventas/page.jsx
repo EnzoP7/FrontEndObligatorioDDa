@@ -15,7 +15,7 @@ const Ventaspage = () => {
   const [selectedVenta, setSelectedVenta] = useState(null);
 
   const VENTAS = ventas();
-  console.log("LAS VENTAS ACA: ", VENTAS);
+
   const PRODUCTOS = losProductos();
 
   const filtrarVentas = () => {

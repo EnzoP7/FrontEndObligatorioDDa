@@ -1,14 +1,14 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "@/src/hooks/useForm";
-import losClientes from "@/data/clientes";
+import traerClientes from "@/data/clientes";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const EditUserpage = ({ params }) => {
   const elID = params.id;
-  const CLIENTES = losClientes();
+  const CLIENTES = traerClientes();
   const router = useRouter();
 
   const elusuarioFiltrado = CLIENTES.filter((elcli) => elcli.id == elID);

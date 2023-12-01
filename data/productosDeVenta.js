@@ -2,13 +2,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const laVenta = (elId) => {
-  const [laVentaData, setLaVenta] = useState([]);
+const productosDeVenta = (elId) => {
+  const [losproductosjeje, setLaVenta] = useState([]);
 
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/venta/${elId}`);
+        const response = await axios.get(
+          `http://localhost:5000/venta/productos/${elId}`
+        );
         setLaVenta(response.data);
       } catch (error) {
         console.error("Error fetching VENTAS:", error);
@@ -18,7 +20,7 @@ const laVenta = (elId) => {
     fetchClientes();
   }, []);
 
-  return laVentaData;
+  return losproductosjeje;
 };
 
-export default laVenta;
+export default productosDeVenta;

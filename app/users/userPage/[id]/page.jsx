@@ -15,7 +15,7 @@ import { RiVipCrown2Fill } from "react-icons/ri";
 import PRODUCTOS from "@/data/productos";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import losClientes from "@/data/clientes";
+import traerClientes from "@/data/clientes";
 import ventas from "@/data/ventas";
 
 const UsuarioPage = ({ params }) => {
@@ -27,7 +27,7 @@ const UsuarioPage = ({ params }) => {
   const elId = params.id;
 
   const VENTAS = ventas();
-  const CLIENTES = losClientes();
+  const CLIENTES = traerClientes();
   const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
   const cliente = clienteFiltrado[0] || 1;
 

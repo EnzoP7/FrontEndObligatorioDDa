@@ -1,6 +1,6 @@
 "use client";
 
-import losClientes from "@/data/clientes";
+import traerClientes from "@/data/clientes";
 import losProductos from "@/data/productos";
 import { useForm } from "@/src/hooks/useForm";
 import axios from "axios";
@@ -15,7 +15,7 @@ const createVentaPAge = () => {
 
   const PRODUCTOS = losProductos();
   console.log("Productos cargados:", PRODUCTOS);
-  const clientes = losClientes();
+  const clientes = traerClientes();
 
   const handleProductoSeleccionado = (event) => {
     const productoId = parseInt(event.target.value);

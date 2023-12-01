@@ -1,8 +1,10 @@
 "use client";
 
-import losClientes from "@/data/clientes";
-import PRODUCTOS from "@/data/productos";
-import ventas from "@/data/ventas";
+import traerClientes from "@/data/clientes";
+import laVenta from "@/data/getAVenta";
+import losProductos from "@/data/productos";
+// import productosDeVenta from "@/data/productosDeVenta";
+
 import { useForm } from "@/src/hooks/useForm";
 import React, { useState, useEffect } from "react";
 
@@ -10,45 +12,71 @@ import Swal from "sweetalert2";
 
 const editVentaPage = ({ params }) => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
-  const VENTAS = ventas();
-  console.log("VENTAS EM EDIT QUE VIENEN: ", VENTAS);
 
   const elId = params.id;
-  const ventaFiltrada = VENTAS.filter((laVenta) => laVenta.id == elId);
-  const venta = ventaFiltrada[0];
-  console.log("LA FECHA: ", venta.fecha);
+  const PRODUCTOS = losProductos();
+  const venta = laVenta(elId);
+  const losClientes = traerClientes();
+  // const losProductosDeLaVenta = productosDeVenta(elId);
 
-  const splitDate = venta.fecha.split("-");
-  const elAño = parseInt(splitDate[0], 10);
-  const mes = parseInt(splitDate[1], 10) - 1; // Restar 1 porque los meses en JavaScript van de 0 a 11
-  const dia = parseInt(splitDate[2], 10);
+  console.log("LA VENTA: ", venta);
+  console.log("Los PRODUCTOS: ", PRODUCTOS);
+  console.log("Los losClientes: ", losClientes);
+  console.log(
+    "LOS PRODUCTOS SELECCIONADOS QUE VIENEN: ",
+    productosSeleccionados
+  );
 
-  const fechaObj = new Date(elAño, mes, dia);
-  console.log("LA FORMATEADA: ", fechaObj);
+  // const splitDate = venta && venta.fecha.split("-");
+  // const elAño = parseInt(splitDate[0], 10);
+  // const mes = parseInt(splitDate[1], 10) - 1; // Restar 1 porque los meses en JavaScript van de 0 a 11
+  // const dia = parseInt(splitDate[2], 10);
+
+  // const fechaObj = new Date(elAño, mes, dia);
+  // console.log("LA FORMATEADA: ", fechaObj);
 
   const haciendolafiltracion = () => {
-    const productosFiltrados = venta.productos.map((prod) => {
-      const producto = PRODUCTOS.find((elPro) => elPro.id === prod.productoId);
-      return { ...producto, cantidad: prod.cantidad || 1 };
-    });
-    setProductosSeleccionados(productosFiltrados);
+    try {
+      const productosFiltrados =
+        venta &&
+        venta.lista.map((laLista) => {
+          const producto = PRODUCTOS.find(
+            (elPro) => elPro.id === laLista.producto.id
+          );
+          return { ...producto, cantidad: laLista.cantidad || 1 };
+        });
+      setProductosSeleccionados(productosFiltrados);
+    } catch (error) {
+      console.log("el error: ", error);
+    }
   };
   useEffect(() => {
     haciendolafiltracion();
 
+    // const formattedDate =
+    //   fechaObj.getFullYear() +
+    //   "-" +
+    //   ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
+    //   "-" +
+    //   ("0" + fechaObj.getDate()).slice(-2);
+
+    // // Actualizar el estado con la fecha formateada
+    // onInputChange({ target: { name: "fecha", value: formattedDate } });
+  }, [venta]);
+  useEffect(() => {
     if (venta.clienteId) {
       onInputChange({ target: { name: "clienteId", value: venta.clienteId } });
     }
 
-    const formattedDate =
-      fechaObj.getFullYear() +
-      "-" +
-      ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
-      "-" +
-      ("0" + fechaObj.getDate()).slice(-2);
+    // const formattedDate =
+    //   fechaObj.getFullYear() +
+    //   "-" +
+    //   ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
+    //   "-" +
+    //   ("0" + fechaObj.getDate()).slice(-2);
 
-    // Actualizar el estado con la fecha formateada
-    onInputChange({ target: { name: "fecha", value: formattedDate } });
+    // // Actualizar el estado con la fecha formateada
+    // onInputChange({ target: { name: "fecha", value: formattedDate } });
   }, []);
 
   const initialFormState = {
@@ -69,20 +97,34 @@ const editVentaPage = ({ params }) => {
   };
 
   const handleProductoSeleccionado = (event) => {
-    const productoId = event.target.value;
-    const productoSeleccionado = PRODUCTOS.find(
-      (producto) => producto.id === productoId
-    );
+    console.log("SE SELECCIONÓ");
 
-    // Verificar si el producto ya está en la lista
-    if (
-      productoSeleccionado &&
-      !productosSeleccionados.some((prod) => prod.id === productoId)
-    ) {
-      setProductosSeleccionados([
-        ...productosSeleccionados,
-        { ...productoSeleccionado, cantidad: 1 }, // Agregar cantidad inicial
-      ]);
+    try {
+      const productoId = event.target.value;
+
+      const productoSeleccionado = (productoId) => {
+        const producto =
+          PRODUCTOS &&
+          PRODUCTOS.filter((producto) => producto.id === productoId);
+        return producto[0];
+      };
+
+      const elProducto = productoSeleccionado(productoId);
+
+      console.log("EL PRODUCTO SELECCIONADO: ", elProducto);
+
+      // Verificar si el producto ya está en la lista
+      if (
+        productoSeleccionado &&
+        !productosSeleccionados.some((prod) => prod.id === productoId)
+      ) {
+        setProductosSeleccionados([
+          ...productosSeleccionados,
+          { ...productoSeleccionado, cantidad: 1 }, // Agregar cantidad inicial
+        ]);
+      }
+    } catch (error) {
+      console.log("el error: ", error);
     }
   };
 
@@ -119,11 +161,10 @@ const editVentaPage = ({ params }) => {
     return total;
   };
 
-  const ProductosFiltrados = PRODUCTOS.filter(
-    (elProducto) => elProducto.estado
-  );
-
-  const usuariosFiltrados = losClientes.filter((elCli) => elCli.estado);
+  const ProductosFiltrados =
+    PRODUCTOS && PRODUCTOS.filter((elProducto) => elProducto.estado);
+  const usuariosFiltrados =
+    losClientes && losClientes.filter((elCli) => elCli.estado);
 
   const totalConDescuentoPorVIP = () => {
     const eltotal = calcularTotal();
@@ -214,10 +255,10 @@ const editVentaPage = ({ params }) => {
                 className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
                 type="text"
                 onChange={handleProductoSeleccionado}
-                //   placeholder="Ingresa Nombre del Producto"
-                //   name="nombre"
-                //   value={nombre}
-                //   onChange={onInputChange}
+                // //   placeholder="Ingresa Nombre del Producto"
+                // //   name="nombre"
+                // //   value={nombre}
+                // //   onChange={onInputChange}
               >
                 {ProductosFiltrados.map((producto) => (
                   <option value={producto.id} key={producto.id}>
@@ -281,7 +322,7 @@ const editVentaPage = ({ params }) => {
                 value={clienteId}
                 onChange={onInputChange}
               >
-                {usuariosFiltrados.map((cliente) => (
+                {/* {usuariosFiltrados.map((cliente) => (
                   <option
                     value={cliente.id}
                     key={cliente.id}
@@ -289,7 +330,7 @@ const editVentaPage = ({ params }) => {
                   >
                     {cliente.id} {cliente.nombre}
                   </option>
-                ))}
+                ))} */}
               </select>
             </div>
 
@@ -299,15 +340,15 @@ const editVentaPage = ({ params }) => {
                 className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
                 onChange={onInputChange}
               >
-                {totalFinal}
+                {/* {totalFinal} */}
               </div>
-              {totalFinal == totalConDescuentoPorVIP() ? (
+              {/* {totalFinal == totalConDescuentoPorVIP() ? (
                 <div className="text-xl p4 flex justify-center">
                   (Descuento del 30%)
                 </div>
               ) : (
                 ""
-              )}
+              )} */}
             </div>
           </div>
 

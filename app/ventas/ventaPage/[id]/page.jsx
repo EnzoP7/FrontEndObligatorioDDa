@@ -1,28 +1,41 @@
 "use client";
+import React, { useEffect, useState } from "react";
 
 import laVenta from "@/data/getAVenta";
-import losProductos from "@/data/productos";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
 
 import { FaUser, FaCalendarAlt, FaMoneyBillWave } from "react-icons/fa";
 import { FaBasketShopping } from "react-icons/fa6";
 import { TbShoppingCartCog } from "react-icons/tb";
 import { TbShoppingBagX } from "react-icons/tb";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 const Ventapage = ({ params }) => {
   const elId = params.id;
-  console.log("EL BELLO ID: ", elId);
+
   const router = useRouter();
   const [selectedVenta, setSelectedVenta] = useState(null);
-  const [venta, setventa] = useState("");
+  const venta = laVenta(elId);
 
-  console.log("LA VENTA FILTRADA: ", venta);
-
-  const eliminarVenta = () => {
+  const eliminarVenta = async () => {
     //! aca hacemos la peticion a la api pa borrar
+    try {
+      if (selectedVenta) {
+        const response = await axios.delete(
+          `http://localhost:5000/venta?id=${elId}`
+        );
+
+        console.log("la bella response xd", response);
+
+        // Revisa el status de la respuesta, no la promesa directamente
+        return response.status === 200;
+      }
+    } catch (error) {
+      console.log(error);
+      return false; // Si hay un error, asumimos que no se eliminó correctamente
+    }
 
     console.log(
       "id de VENTA eliminado: ",
@@ -66,15 +79,22 @@ const Ventapage = ({ params }) => {
       .then((result) => {
         if (result.isConfirmed) {
           // Aquí colocas la lógica para eliminar el cliente
-          eliminarVenta();
+          const resultado = eliminarVenta();
           setSelectedVenta(null);
-          swalWithBootstrapButtons.fire({
-            title: "¡Eliminado!",
-            text: `La Venta ${
-              selectedVenta ? selectedVenta.id : ""
-            } ha sido eliminada.`,
-            icon: "success",
-          });
+
+          resultado
+            ? swalWithBootstrapButtons.fire({
+                title: "¡Eliminado!",
+                text: `La Venta ${
+                  selectedVenta ? selectedVenta.id : ""
+                } ha sido eliminada.`,
+                icon: "success",
+              })
+            : swalWithBootstrapButtons.fire({
+                title: "Algo salio Mal",
+                text: "El servidor fallo",
+                icon: "error",
+              });
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           setSelectedVenta(null);
           swalWithBootstrapButtons.fire({
@@ -83,13 +103,11 @@ const Ventapage = ({ params }) => {
             icon: "error",
           });
         }
+        const redireccion = setTimeout(() => {
+          router.push("/ventas");
+        }, 2000);
       });
   };
-
-  useEffect(() => {
-    const venta = laVenta(elId);
-    setventa(venta);
-  }, []);
 
   useEffect(() => {
     if (selectedVenta != null) {
@@ -119,11 +137,13 @@ const Ventapage = ({ params }) => {
                 <FaBasketShopping size={50} />
               </p>
               <h1 className="text-3xl">
-                <span className="font-semibold ">
+                <span className="font-semibold">
                   Productos:{" "}
-                  {venta.lista.map(
-                    (producto) => ` ID: ${producto.producto.id}`
-                  )}{" "}
+                  {venta.lista
+                    ? venta.lista.map(
+                        (producto) => ` ID: ${producto.producto.id}`
+                      )
+                    : "No hay productos disponibles"}
                 </span>
               </h1>
             </div>
@@ -142,9 +162,8 @@ const Ventapage = ({ params }) => {
                 <FaUser size={50} />
               </p>
               <h1 className="text-3xl">
-                <span className="font-semibold ">
-                  {" "}
-                  Cliente ID: {venta.cli.id}{" "}
+                <span className="font-semibold">
+                  Cliente ID: {venta.cli ? venta.cli.id : "-1"}
                 </span>
               </h1>
             </div>
