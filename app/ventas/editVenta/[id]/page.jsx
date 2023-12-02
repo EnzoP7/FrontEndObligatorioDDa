@@ -3,37 +3,42 @@
 import traerClientes from "@/data/clientes";
 import laVenta from "@/data/getAVenta";
 import losProductos from "@/data/productos";
-// import productosDeVenta from "@/data/productosDeVenta";
 
 import { useForm } from "@/src/hooks/useForm";
+import axios from "axios";
 import React, { useState, useEffect } from "react";
+import Skeleton from "react-loading-skeleton";
 
 import Swal from "sweetalert2";
 
 const editVentaPage = ({ params }) => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const elId = params.id;
   const PRODUCTOS = losProductos();
   const venta = laVenta(elId);
   const losClientes = traerClientes();
-  // const losProductosDeLaVenta = productosDeVenta(elId);
 
-  console.log("LA VENTA: ", venta);
-  console.log("Los PRODUCTOS: ", PRODUCTOS);
-  console.log("Los losClientes: ", losClientes);
-  console.log(
-    "LOS PRODUCTOS SELECCIONADOS QUE VIENEN: ",
-    productosSeleccionados
-  );
+  let fechaObj;
 
-  // const splitDate = venta && venta.fecha.split("-");
-  // const elAño = parseInt(splitDate[0], 10);
-  // const mes = parseInt(splitDate[1], 10) - 1; // Restar 1 porque los meses en JavaScript van de 0 a 11
-  // const dia = parseInt(splitDate[2], 10);
+  if (venta && venta.fecha) {
+    const splitDate = venta.fecha.split("-");
 
-  // const fechaObj = new Date(elAño, mes, dia);
-  // console.log("LA FORMATEADA: ", fechaObj);
+    // Verificar si splitDate tiene la longitud esperada
+    if (splitDate.length === 3) {
+      const elAño = parseInt(splitDate[0], 10);
+      const mes = parseInt(splitDate[1], 10) - 1;
+      const dia = parseInt(splitDate[2], 10);
+
+      fechaObj = new Date(elAño, mes, dia);
+      console.log("LA FORMATEADA: ", fechaObj);
+    } else {
+      console.error("Fecha no válida:", venta.fecha);
+    }
+  } else {
+    console.error("Venta no válida:", venta);
+  }
 
   const haciendolafiltracion = () => {
     try {
@@ -50,22 +55,25 @@ const editVentaPage = ({ params }) => {
       console.log("el error: ", error);
     }
   };
+
   useEffect(() => {
     haciendolafiltracion();
 
-    // const formattedDate =
-    //   fechaObj.getFullYear() +
-    //   "-" +
-    //   ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
-    //   "-" +
-    //   ("0" + fechaObj.getDate()).slice(-2);
-
-    // // Actualizar el estado con la fecha formateada
-    // onInputChange({ target: { name: "fecha", value: formattedDate } });
-  }, [venta]);
-  useEffect(() => {
     if (venta.clienteId) {
       onInputChange({ target: { name: "clienteId", value: venta.clienteId } });
+    }
+    if (fechaObj) {
+      const formattedDate =
+        fechaObj.getFullYear() +
+        "-" +
+        ("0" + (fechaObj.getMonth() + 1)).slice(-2) +
+        "-" +
+        ("0" + fechaObj.getDate()).slice(-2);
+
+      // Actualizar el estado con la fecha formateada
+      onInputChange({ target: { name: "fecha", value: formattedDate } });
+    } else {
+      console.error("Fecha no válida o fechaObj no definido:", venta);
     }
 
     // const formattedDate =
@@ -77,54 +85,73 @@ const editVentaPage = ({ params }) => {
 
     // // Actualizar el estado con la fecha formateada
     // onInputChange({ target: { name: "fecha", value: formattedDate } });
+  }, [venta]);
+
+  useEffect(() => {
+    // Simula una carga de 2 segundos (ajusta según tus necesidades)
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 50);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const initialFormState = {
     id: venta.id,
-    productos: venta.productos,
+    productos: venta.lista,
     fecha: "",
-    clienteId: venta.clienteId,
+    clienteId: venta.cli && venta.cli.id,
     total: venta.total,
   };
 
-  const { id, productos, fecha, clienteId, total, onInputChange, onResetForm } =
-    useForm(initialFormState);
+  console.log("EL INITIAL STATE: ", initialFormState);
 
-  const buscarCliente = (id) => {
+  const { fecha, clienteId, onInputChange } = useForm(initialFormState);
+
+  // const buscarCliente = (id) => {
+  //   const elCli =   losClientes.filter((elCli) => elCli.id === id);
+  //   const cliente = elCli[0] || null;
+  //   return cliente;
+  // };
+
+  const buscarCliente = async (id) => {
+    // Simulando una operación asincrónica
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
     const elCli = losClientes.filter((elCli) => elCli.id == id);
     const cliente = elCli[0] || null;
     return cliente;
   };
 
-  const handleProductoSeleccionado = (event) => {
+  const handleProductoSeleccionado = async (event) => {
     console.log("SE SELECCIONÓ");
 
     try {
       const productoId = event.target.value;
 
-      const productoSeleccionado = (productoId) => {
-        const producto =
-          PRODUCTOS &&
-          PRODUCTOS.filter((producto) => producto.id === productoId);
-        return producto[0];
+      const buscandoAlProducto = async () => {
+        // Simulando una operación asincrónica
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        const elBelloProducto = PRODUCTOS.filter((pro) => pro.id == productoId);
+        return elBelloProducto[0] || "No se encontró el producto";
       };
-
-      const elProducto = productoSeleccionado(productoId);
-
+      const elProducto = await buscandoAlProducto();
       console.log("EL PRODUCTO SELECCIONADO: ", elProducto);
 
       // Verificar si el producto ya está en la lista
       if (
-        productoSeleccionado &&
-        !productosSeleccionados.some((prod) => prod.id === productoId)
+        elProducto &&
+        !productosSeleccionados.some((prod) => prod.id == productoId)
       ) {
         setProductosSeleccionados([
           ...productosSeleccionados,
-          { ...productoSeleccionado, cantidad: 1 }, // Agregar cantidad inicial
+          { ...elProducto, cantidad: 1 }, // Agregar cantidad inicial
         ]);
       }
     } catch (error) {
-      console.log("el error: ", error);
+      console.log("el error feo: ", error);
     }
   };
 
@@ -176,30 +203,62 @@ const editVentaPage = ({ params }) => {
   const clienteDeLaCompra = buscarCliente(clienteId);
   const tiene3Compras =
     clienteDeLaCompra &&
-    clienteDeLaCompra.vip &&
-    clienteDeLaCompra.vip.contadorCompras === 3;
+    clienteDeLaCompra.fechaMembresia &&
+    clienteDeLaCompra.contadorCompras % 3 == 0;
 
   const totalFinal = tiene3Compras
     ? totalConDescuentoPorVIP()
     : calcularTotal();
   console.log(totalFinal);
 
-  const handleSubmit = (event) => {
+  const productosParaEnviar = productosSeleccionados.map((producto) => ({
+    producto: {
+      id: producto.id,
+      nombre: producto.nombre,
+      descripcion: producto.descripcion,
+      precio: producto.precio,
+      estado: producto.estado,
+      stock: producto.stock,
+    },
+    cantidad: producto.cantidad,
+  }));
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     // Agregar lógica para manejar el envío del formulario aquí
-    console.log("Formulario enviado:", {
-      id: "1",
+    // console.log("Formulario enviado:", {
+    //   id: "1",
 
-      fecha, // Puedes utilizar un formato de fecha adecuado para tu aplicación
-      clienteId,
+    //   fecha, // Puedes utilizar un formato de fecha adecuado para tu aplicación
+    //   clienteId,
 
-      productosSeleccionados,
-      totalFinal,
-    });
+    //   productosSeleccionados,
+    //   totalFinal,
+    // });
 
-    const taTodoBien = true;
+    let response;
+    let funca;
+    try {
+      console.log("EL cliente ID ACA: ", clienteId);
+      console.log("LA VENTA.cli.id: ", venta.cli.id);
+      const cuerpo = {
+        id: elId,
+        lista: productosParaEnviar,
+        fecha,
+        total: totalFinal,
+        cli: await buscarCliente(clienteId),
+      };
+
+      console.log("EL BELLO CUERPO: ", cuerpo);
+      response = await axios.put(`http://localhost:5000/venta/update`, cuerpo);
+      response.status === 200 ? (funca = true) : (funca = false);
+      console.log("LA RESPONSE: ", response);
+    } catch (error) {
+      console.log("EL ERROR: ", error);
+    }
+
     {
-      taTodoBien
+      funca
         ? Swal.fire({
             position: "center",
             icon: "success",
@@ -231,141 +290,150 @@ const editVentaPage = ({ params }) => {
         `,
           });
     }
-    // redireccion
-    // setTimeout(() => {
-    //   router.push("/users");
-    // }, 2000);
+    redireccion;
+    setTimeout(() => {
+      router.push("/ventas");
+    }, 2000);
 
     // 2000 milisegundos = 2 segundos
   };
 
   return (
     <>
-      <div>
-        <h1 className="text-7xl font-semibold m-10 text-center">
-          Modificar Venta
-        </h1>
-        <form className="px-5 " onSubmit={handleSubmit}>
-          <div className="grid grid-cols-6 gap-5">
-            <div>
-              <label className="text-xl p-4 flex justify-center">
-                Selecciona Productos
-              </label>
-              <select
-                className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
-                type="text"
-                onChange={handleProductoSeleccionado}
-                // //   placeholder="Ingresa Nombre del Producto"
-                // //   name="nombre"
-                // //   value={nombre}
-                // //   onChange={onInputChange}
-              >
-                {ProductosFiltrados.map((producto) => (
-                  <option value={producto.id} key={producto.id}>
-                    {producto.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-span-2">
-              <label className="text-xl p-4 flex justify-center">
-                Productos Seleccionados
-              </label>
-              <ul className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex-col  justify-center items-center">
-                {productosSeleccionados.map((producto) => (
-                  <div key={producto.id} className="mb-2 w-full">
-                    {producto.nombre} - Cantidad:
-                    <input
-                      className="w-14 text-center py-2 border rounded"
-                      type="number"
-                      value={producto.cantidad}
-                      onChange={(e) =>
-                        handleCantidadChange(
-                          producto.id,
-                          parseInt(e.target.value)
-                        )
-                      }
-                      min="1"
-                    />
-                    <button
-                      onClick={() => handleEliminarProducto(producto.id)}
-                      className="ml-5 text-white bg-red-600 p-3 rounded-xl"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <label className="text-xl p-4 flex justify-center">
-                Fecha Venta
-              </label>
-              <input
-                className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center   "
-                type="date"
-                name="fecha" // Corregido de fechaVeip a fechaVip
-                value={fecha}
-                onChange={onInputChange}
-              />
-            </div>
-
-            <div>
-              <label className="text-xl p-4 flex justify-center">
-                Selecciona Cliente
-              </label>
-              <select
-                className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
-                type="text"
-                name="clienteId"
-                value={clienteId}
-                onChange={onInputChange}
-              >
-                {/* {usuariosFiltrados.map((cliente) => (
-                  <option
-                    value={cliente.id}
-                    key={cliente.id}
-                    selected={cliente.id === venta.clienteId}
-                  >
-                    {cliente.id} {cliente.nombre}
-                  </option>
-                ))} */}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xl p-4 flex justify-center">TOTAL</label>
-              <div
-                className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
-                onChange={onInputChange}
-              >
-                {/* {totalFinal} */}
+      {loading ? (
+        <Skeleton height={100} count={5} />
+      ) : (
+        <div>
+          <h1 className="text-7xl font-semibold m-10 text-center">
+            Modificar Venta
+          </h1>
+          <form className="px-5 " onSubmit={handleSubmit}>
+            <div className="grid grid-cols-6 gap-5">
+              <div>
+                <label className="text-xl p-4 flex justify-center">
+                  Selecciona Productos
+                </label>
+                <select
+                  className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
+                  type="text"
+                  onChange={handleProductoSeleccionado}
+                  // //   placeholder="Ingresa Nombre del Producto"
+                  // //   name="nombre"
+                  // //   value={nombre}
+                  // //   onChange={onInputChange}
+                >
+                  {ProductosFiltrados.map((producto) => (
+                    <option value={producto.id} key={producto.id}>
+                      {producto.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
-              {/* {totalFinal == totalConDescuentoPorVIP() ? (
-                <div className="text-xl p4 flex justify-center">
-                  (Descuento del 30%)
-                </div>
-              ) : (
-                ""
-              )} */}
-            </div>
-          </div>
+              <div className="col-span-2">
+                <label className="text-xl p-4 flex justify-center">
+                  Productos Seleccionados
+                </label>
+                <ul className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex-col  justify-center items-center">
+                  {productosSeleccionados.map((producto) => (
+                    <div key={producto.id} className="mb-2 w-full">
+                      {producto.nombre} - Cantidad:
+                      <input
+                        className="w-14 text-center py-2 border rounded"
+                        type="number"
+                        value={producto.cantidad}
+                        onChange={(e) =>
+                          handleCantidadChange(
+                            producto.id,
+                            parseInt(e.target.value)
+                          )
+                        }
+                        min="1"
+                      />
+                      <button
+                        onClick={() => handleEliminarProducto(producto.id)}
+                        className="ml-5 text-white bg-red-600 p-3 rounded-xl"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  ))}
+                </ul>
+              </div>
 
-          <div className="flex items-center justify-center py-10 gap-5">
-            <button className="btn  p-3 text-2xl" type="submit">
-              Modificar VENTA
-            </button>
-            <button
-              className="btn w-fit p-3 text-2xl"
-              type="button"
-              onClick={handleResetForm}
-            >
-              Resetear Formulario
-            </button>
-          </div>
-        </form>
-      </div>
+              <div>
+                <label className="text-xl p-4 flex justify-center">
+                  Fecha Venta
+                </label>
+                <input
+                  className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center   "
+                  type="date"
+                  name="fecha" // Corregido de fechaVeip a fechaVip
+                  value={fecha}
+                  onChange={onInputChange}
+                />
+              </div>
+
+              <div>
+                <label className="text-xl p-4 flex justify-center">
+                  Selecciona Cliente
+                </label>
+
+                <select
+                  className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
+                  type="text"
+                  name="clienteId"
+                  // defaultValue={(venta && venta.cli.id) || 2}
+                  onChange={onInputChange}
+                >
+                  <option>Selecciona Nuevo Cliente</option>
+                  {usuariosFiltrados.map((cliente) => (
+                    <option
+                      value={cliente.id}
+                      key={cliente.id}
+                      // selected={cliente.id == venta.cli.id}
+                    >
+                      {cliente.id} {cliente.nombre}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-center">
+                  Id del cliente Antiguo de la venta: {venta.cli.id}{" "}
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xl p-4 flex justify-center">TOTAL</label>
+                <div
+                  className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center flex  justify-center items-center"
+                  onChange={onInputChange}
+                >
+                  {totalFinal}
+                </div>
+                {totalFinal == totalConDescuentoPorVIP() ? (
+                  <div className="text-xl p4 flex justify-center">
+                    (Descuento del 30%)
+                  </div>
+                ) : (
+                  ""
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center py-10 gap-5">
+              <button className="btn  p-3 text-2xl" type="submit">
+                Modificar VENTA
+              </button>
+              <button
+                className="btn w-fit p-3 text-2xl"
+                type="button"
+                onClick={handleResetForm}
+              >
+                Resetear Formulario
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </>
   );
 };

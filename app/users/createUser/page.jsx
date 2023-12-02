@@ -210,7 +210,7 @@ const CreateUserpage = () => {
                       className="bg-base-100  w-full p-4  placeholder:text-base-content text-base-content border-2 border-base-content rounded-2xl text-center   "
                       type="date"
                       name="fechaMembresia" // Corregido de fechaVeip a fechaVip
-                      value={"fechaMembresia"}
+                      value={fechaMembresia}
                       onChange={onInputChange}
                     />
                   </div>

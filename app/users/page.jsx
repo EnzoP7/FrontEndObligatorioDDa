@@ -5,11 +5,13 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import UsuariosRegulares from "@/data/regulares";
+import UsuariosVip from "@/data/VIP";
 
 const UsersPage = () => {
   const router = useRouter();
   const CLIENTES = traerClientes();
   const Regulares = UsuariosRegulares();
+  const VIPS = UsuariosVip();
 
   const [Filtro, setFiltro] = useState("todos");
   const [busquedaNombre, setBusquedaNombre] = useState("");
@@ -23,13 +25,11 @@ const UsersPage = () => {
       case "todos":
         return CLIENTES;
       case "VIP":
-        return CLIENTES.filter(
-          (cliente) => cliente.fechaMembresia && cliente.estado
-        );
+        return VIPS;
       case "regulares":
         return Regulares.filter((cliente) => cliente.estado);
-      case "debaja":
-        return CLIENTES.filter((cliente) => !cliente.estado);
+      // case "debaja":
+      //   return CLIENTES.filter((cliente) => !cliente.estado);
 
       case "nombre":
         return CLIENTES.filter((cliente) => {
@@ -53,17 +53,88 @@ const UsersPage = () => {
         const response = await axios.delete(
           `http://localhost:5000/clients/eliminarCliente?id=${selectedClient.id}`
         );
-        let funco;
         console.log("LA RESPONSE: ", response);
-        response.status === 200 ? (funco = true) : (funco = false);
-        return funco;
+        console.log(
+          "LA RESPONSE statusCodeValue: ",
+          response.data.statusCodeValue
+        );
+
+        return response.data.statusCodeValue;
       } catch (error) {
         console.log(error);
       }
     }
   };
 
-  const handleDeleteConfirmation = () => {
+  // const handleDeleteConfirmation = () => {
+  //   const swalWithBootstrapButtons = Swal.mixin({
+  //     customClass: {
+  //       confirmButton: "btn btn-success",
+  //       cancelButton: "btn btn-danger",
+  //     },
+  //     buttonsStyling: false,
+  //   });
+
+  //   swalWithBootstrapButtons
+  //     .fire({
+  //       title: `¿Estás seguro?\nEliminar a  ${
+  //         selectedClient ? selectedClient.nombre : ""
+  //       }`,
+  //       text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+  //       icon: "warning",
+  //       showCancelButton: true,
+  //       confirmButtonText: "Sí, eliminarlo",
+  //       cancelButtonText: "No, cancelar",
+  //       confirmButtonColor: "#fff",
+  //       cancelButtonColor: "#fff",
+  //       reverseButtons: true,
+  //       backdrop: `
+  //         rgba(0,0,123,0.4)
+  //         url("/cat.gif")
+  //         left top
+  //         no-repeat
+  //       `,
+  //       onClose: () => {
+  //         // Restablecer selectedClient al cerrar el modal
+  //         setSelectedClient(null);
+  //       },
+  //     })
+  //     .then((result) => {
+  //       if (result.isConfirmed) {
+  //         // Aquí colocas la lógica para eliminar el cliente
+  //         const resultado = eliminarCliente();
+  //         setSelectedClient(null);
+
+  //         resultado
+  //           ? swalWithBootstrapButtons.fire({
+  //               title: "¡Eliminado!",
+  //               text: `El usuario ${
+  //                 selectedClient ? selectedClient.nombre : ""
+  //               } ha sido eliminado.`,
+  //               icon: "success",
+  //             })
+  //           : swalWithBootstrapButtons.fire({
+  //               title: "¡Error!",
+  //               text: `Algo ha fallado en el Servidor `,
+  //               icon: "error",
+  //             });
+  //         const redireccion = setTimeout(() => {
+  //           router.push("/");
+  //         }, 2000);
+  //       } else if (result.dismiss === Swal.DismissReason.cancel) {
+  //         setSelectedClient(null);
+  //         swalWithBootstrapButtons.fire({
+  //           title: "Cancelado",
+  //           text: "El usuario está a salvo :)",
+  //           icon: "error",
+  //         });
+  //         const redireccion = setTimeout(() => {
+  //           router.push("/");
+  //         }, 2000);
+  //       }
+  //     });
+  // };
+  const handleDeleteConfirmation = async () => {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: "btn btn-success",
@@ -72,12 +143,12 @@ const UsersPage = () => {
       buttonsStyling: false,
     });
 
-    swalWithBootstrapButtons
-      .fire({
+    try {
+      const result = await swalWithBootstrapButtons.fire({
         title: `¿Estás seguro?\nEliminar a  ${
           selectedClient ? selectedClient.nombre : ""
         }`,
-        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        text: "Se Eliminara al Cliente",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Sí, eliminarlo",
@@ -86,50 +157,58 @@ const UsersPage = () => {
         cancelButtonColor: "#fff",
         reverseButtons: true,
         backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
+            rgba(0,0,123,0.4)
+            url("/cat.gif")
+            left top
+            no-repeat
+          `,
         onClose: () => {
           // Restablecer selectedClient al cerrar el modal
           setSelectedClient(null);
         },
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          // Aquí colocas la lógica para eliminar el cliente
-          const resultado = eliminarCliente();
-          setSelectedClient(null);
+      });
 
-          resultado
-            ? swalWithBootstrapButtons.fire({
-                title: "¡Eliminado!",
-                text: `El usuario ${
-                  selectedClient ? selectedClient.nombre : ""
-                } ha sido eliminado.`,
-                icon: "success",
-              })
-            : swalWithBootstrapButtons.fire({
-                title: "¡Error!",
-                text: `Algo ha fallado en el Servidor `,
-                icon: "error",
-              });
-          const redireccion = setTimeout(() => {
-            router.push("/");
-          }, 2000);
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          setSelectedClient(null);
+      if (result.isConfirmed) {
+        // Aquí colocas la lógica para eliminar el cliente
+        const resultado = await eliminarCliente();
+        console.log("el resultado: ", resultado);
+        setSelectedClient(null);
+        if (resultado === 200) {
           swalWithBootstrapButtons.fire({
-            title: "Cancelado",
-            text: "El usuario está a salvo :)",
+            title: "¡Eliminado!",
+            text: `El usuario ${
+              selectedClient ? selectedClient.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (resultado === 405) {
+          swalWithBootstrapButtons.fire({
+            title: "DATOS EN DB ",
+            text: `Existen Registros de este usuario en Ventas, No es posible eliminar.`,
             icon: "error",
           });
-          const redireccion = setTimeout(() => {
-            router.push("/");
-          }, 2000);
+        } else {
+          swalWithBootstrapButtons.fire({
+            title: "ALGO SALIO MAL ",
+            text: `El servidor fallo.`,
+            icon: "error",
+          });
         }
-      });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        setSelectedClient(null);
+        swalWithBootstrapButtons.fire({
+          title: "Cancelado",
+          text: "El usuario está a salvo :)",
+          icon: "error",
+        });
+      }
+
+      const redireccion = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   {
@@ -189,12 +268,12 @@ const UsersPage = () => {
             Usuarios Regulares
           </button>
 
-          <button
+          {/* <button
             className=" p-3 rounded-xl border-2 border-white bg-base-content text-base-100 hover:scale-105 hover:bg-base-100 hover:text-base-content text-2xl"
             onClick={() => setFiltro("debaja")}
           >
             Usuarios de Baja
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="p-5">

@@ -12,11 +12,12 @@ import {
 } from "react-icons/fa";
 import { RiVipCrown2Fill } from "react-icons/ri";
 
-import PRODUCTOS from "@/data/productos";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import traerClientes from "@/data/clientes";
+
 import ventas from "@/data/ventas";
+import useCliente from "@/data/traerCliente";
+import losProductos from "@/data/productos";
 
 const UsuarioPage = ({ params }) => {
   const router = useRouter();
@@ -25,15 +26,13 @@ const UsuarioPage = ({ params }) => {
   // const [cliente, setcliente] = useState("");
 
   const elId = params.id;
-
   const VENTAS = ventas();
-  const CLIENTES = traerClientes();
-  const clienteFiltrado = CLIENTES.filter((elCliente) => elCliente.id == elId);
-  const cliente = clienteFiltrado[0] || 1;
+  const PRODUCTOS = losProductos();
+  const cliente = useCliente(elId);
 
   console.log("QUE VIENE EN CLIENTE: ", cliente);
 
-  const ventasAlCliente = VENTAS.filter((laVenta) => laVenta.clienteId == elId);
+  const ventasAlCliente = VENTAS.filter((laVenta) => laVenta.cli.id == elId);
 
   const buscarProducto = (productoId) => {
     const elProductoFiltrado = PRODUCTOS.find(
@@ -43,15 +42,99 @@ const UsuarioPage = ({ params }) => {
     return elProducto;
   };
 
-  const calcularTotal = (productos) => {
-    return productos.reduce((total, producto) => {
-      const precioProducto =
-        PRODUCTOS.find((p) => p.id === producto.productoId)?.precio || 0;
-      return total + precioProducto * producto.cantidad;
-    }, 0);
+  const eliminarCliente = async () => {
+    //! aca hacemos la peticion a la api pa borrar
+    if (selectedClient) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/clients/eliminarCliente?id=${selectedClient.id}`
+        );
+        console.log("LA RESPONSE: ", response);
+        console.log(
+          "LA RESPONSE statusCodeValue: ",
+          response.data.statusCodeValue
+        );
+
+        return response.data.statusCodeValue;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    console.log(
+      "id de cliente eliminado: ",
+      selectedClient ? selectedClient.id : null
+    );
   };
 
-  const handleDeleteConfirmation = () => {
+  // const handleDeleteConfirmation = () => {
+  //   const swalWithBootstrapButtons = Swal.mixin({
+  //     customClass: {
+  //       confirmButton: "btn btn-success",
+  //       cancelButton: "btn btn-danger",
+  //     },
+  //     buttonsStyling: false,
+  //   });
+
+  //   swalWithBootstrapButtons
+  //     .fire({
+  //       title: `¿Estás seguro?\nEliminar a  ${
+  //         selectedClient ? selectedClient.nombre : ""
+  //       }`,
+  //       text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+  //       icon: "warning",
+  //       showCancelButton: true,
+  //       confirmButtonText: "Sí, eliminarlo",
+  //       cancelButtonText: "No, cancelar",
+  //       confirmButtonColor: "#fff",
+  //       cancelButtonColor: "#fff",
+  //       reverseButtons: true,
+  //       backdrop: `
+  //         rgba(0,0,123,0.4)
+  //         url("/cat.gif")
+  //         left top
+  //         no-repeat
+  //       `,
+  //       onClose: () => {
+  //         // Restablecer selectedClient al cerrar el modal
+  //         setSelectedClient(null);
+  //       },
+  //     })
+  //     .then((result) => {
+  //       if (result.isConfirmed) {
+  //         // Aquí colocas la lógica para eliminar el cliente
+  //         const Resultado = eliminarCliente();
+  //         setSelectedClient(null);
+
+  //         Resultado
+  //           ? swalWithBootstrapButtons.fire({
+  //               title: "¡Eliminado!",
+  //               text: `El usuario ${
+  //                 selectedClient ? selectedClient.nombre : ""
+  //               } ha sido eliminado.`,
+  //               icon: "success",
+  //             })
+  //           : swalWithBootstrapButtons.fire({
+  //               title: "Algo salio mal",
+  //               text: `El servidor ha fallado`,
+  //               icon: "error",
+  //             });
+  //       } else if (result.dismiss === Swal.DismissReason.cancel) {
+  //         setSelectedClient(null);
+  //         swalWithBootstrapButtons.fire({
+  //           title: "Cancelado",
+  //           text: "El usuario está a salvo :)",
+  //           icon: "error",
+  //         });
+  //       }
+
+  //       const redireccion = setTimeout(() => {
+  //         router.push("/users");
+  //       }, 2000);
+  //     });
+  // };
+
+  const handleDeleteConfirmation = async () => {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: "btn btn-success",
@@ -60,12 +143,12 @@ const UsuarioPage = ({ params }) => {
       buttonsStyling: false,
     });
 
-    swalWithBootstrapButtons
-      .fire({
+    try {
+      const result = await swalWithBootstrapButtons.fire({
         title: `¿Estás seguro?\nEliminar a  ${
           selectedClient ? selectedClient.nombre : ""
         }`,
-        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        text: "Se Eliminara al Cliente",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Sí, eliminarlo",
@@ -74,48 +157,58 @@ const UsuarioPage = ({ params }) => {
         cancelButtonColor: "#fff",
         reverseButtons: true,
         backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
+            rgba(0,0,123,0.4)
+            url("/cat.gif")
+            left top
+            no-repeat
+          `,
         onClose: () => {
           // Restablecer selectedClient al cerrar el modal
           setSelectedClient(null);
         },
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          // Aquí colocas la lógica para eliminar el cliente
-          const Resultado = eliminarCliente();
-          setSelectedClient(null);
+      });
 
-          Resultado
-            ? swalWithBootstrapButtons.fire({
-                title: "¡Eliminado!",
-                text: `El usuario ${
-                  selectedClient ? selectedClient.nombre : ""
-                } ha sido eliminado.`,
-                icon: "success",
-              })
-            : swalWithBootstrapButtons.fire({
-                title: "Algo salio mal",
-                text: `El servidor ha fallado`,
-                icon: "error",
-              });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          setSelectedClient(null);
+      if (result.isConfirmed) {
+        // Aquí colocas la lógica para eliminar el cliente
+        const resultado = await eliminarCliente();
+        console.log("el resultado: ", resultado);
+        setSelectedClient(null);
+        if (resultado === 200) {
           swalWithBootstrapButtons.fire({
-            title: "Cancelado",
-            text: "El usuario está a salvo :)",
+            title: "¡Eliminado!",
+            text: `El usuario ${
+              selectedClient ? selectedClient.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (resultado === 405) {
+          swalWithBootstrapButtons.fire({
+            title: "DATOS EN DB ",
+            text: `Existen Registros de este usuario en Ventas, No es posible eliminar.`,
+            icon: "error",
+          });
+        } else {
+          swalWithBootstrapButtons.fire({
+            title: "ALGO SALIO MAL ",
+            text: `El servidor fallo.`,
             icon: "error",
           });
         }
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        setSelectedClient(null);
+        swalWithBootstrapButtons.fire({
+          title: "Cancelado",
+          text: "El usuario está a salvo :)",
+          icon: "error",
+        });
+      }
 
-        const redireccion = setTimeout(() => {
-          router.push("/users");
-        }, 2000);
-      });
+      const redireccion = setTimeout(() => {
+        router.push("/users");
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleVIPConfirmation = () => {
@@ -183,28 +276,6 @@ const UsuarioPage = ({ params }) => {
           router.push("/users");
         }, 2000);
       });
-  };
-
-  const eliminarCliente = async () => {
-    //! aca hacemos la peticion a la api pa borrar
-    if (selectedClient) {
-      try {
-        const response = await axios.delete(
-          `http://localhost:5000/clients/eliminarCliente?id=${selectedClient.id}`
-        );
-        let funco;
-        console.log("LA RESPONSE: ", response);
-        response.status === 200 ? (funco = true) : (funco = false);
-        return funco;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    console.log(
-      "id de cliente eliminado: ",
-      selectedClient ? selectedClient.id : null
-    );
   };
 
   const obtenerFechaActual = () => {
@@ -399,20 +470,18 @@ const UsuarioPage = ({ params }) => {
                       <td className="border p-4">{venta.id}</td>
                       <td className="border p-4">
                         <ul>
-                          {venta.productos.map((producto) => (
-                            <li key={producto.productoId}>
+                          {venta.lista.map((lista) => (
+                            <li key={lista.producto.id}>
                               {`Producto: ${buscarProducto(
-                                producto.productoId
-                              )} Cantidad: ${producto.cantidad}`}
+                                lista.producto.id
+                              )} Cantidad: ${lista.cantidad}`}
                             </li>
                           ))}
                         </ul>
                       </td>
                       <td className="border p-4">{venta.fecha}</td>
-                      <td className="border p-4">{venta.clienteId}</td>
-                      <td className="border p-4">
-                        ${calcularTotal(venta.productos)}
-                      </td>
+                      <td className="border p-4">{venta.cli.id}</td>
+                      <td className="border p-4">${venta.total}</td>
                     </tr>
                   ))}
                 </tbody>

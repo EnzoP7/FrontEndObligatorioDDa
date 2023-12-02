@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const unsoloProducto = (elId) => {
+const useUnsoloProducto = (elId) => {
   const [losProductos, setProductos] = useState([]);
   console.log("ELID que se hace en el axios: ", elId);
 
@@ -27,4 +27,4 @@ const unsoloProducto = (elId) => {
   return losProductos;
 };
 
-export default unsoloProducto;
+export default useUnsoloProducto;

@@ -5,14 +5,16 @@ import traerClientes from "@/data/clientes";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import useCliente from "@/data/traerCliente";
 
 const EditUserpage = ({ params }) => {
   const elID = params.id;
-  const CLIENTES = traerClientes();
+  // const CLIENTES = traerClientes();
   const router = useRouter();
 
-  const elusuarioFiltrado = CLIENTES.filter((elcli) => elcli.id == elID);
-  const usuario = elusuarioFiltrado[0] || 1;
+  // const elusuarioFiltrado = CLIENTES.filter((elcli) => elcli.id == elID);
+  // const usuario = elusuarioFiltrado[0] || 1;
+  const usuario = useCliente(elID);
 
   const initialFormState = {
     id: usuario.id,
@@ -216,7 +218,9 @@ const EditUserpage = ({ params }) => {
             className="border-2 border-base-content p-5 rounded-2xl shadow-lg shadow-base-content "
           >
             <div
-              className={`grid ${!vip ? "grid-cols-4" : "grid-cols-5"}  gap-5`}
+              className={`grid ${
+                vip == "false" ? "grid-cols-4" : "grid-cols-5"
+              }  gap-5`}
             >
               <div>
                 <label className="text-xl p-4 flex justify-center">
@@ -273,7 +277,7 @@ const EditUserpage = ({ params }) => {
                 </select>
               </div>
 
-              {vip && (
+              {vip === "true" && (
                 <>
                   <div>
                     <label className="text-xl p-4 flex justify-center">

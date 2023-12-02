@@ -24,8 +24,8 @@ const Productspage = () => {
         );
       case "nohay":
         return PRODUCTOS.filter((producto) => producto.stock === 0);
-      case "debaja":
-        return PRODUCTOS.filter((producto) => !producto.estado);
+      // case "debaja":
+      //   return PRODUCTOS.filter((producto) => !producto.estado);
 
       case "nombre":
         return PRODUCTOS.filter((producto) => {
@@ -67,8 +67,12 @@ const Productspage = () => {
         );
         let funco;
         console.log("LA RESPONSE: ", response);
-        response.status === 200 ? (funco = true) : (funco = false);
-        return funco;
+        console.log(
+          "LA RESPONSE statusCodeValue: ",
+          response.data.statusCodeValue
+        );
+
+        return response.data.statusCodeValue;
       } catch (error) {
         console.log(error);
       }
@@ -80,7 +84,80 @@ const Productspage = () => {
     );
   };
 
-  const handleDeleteConfirmation = () => {
+  // const handleDeleteConfirmation = async () => {
+  //   const swalWithBootstrapButtons = Swal.mixin({
+  //     customClass: {
+  //       confirmButton: "btn btn-success",
+  //       cancelButton: "btn btn-danger",
+  //     },
+  //     buttonsStyling: false,
+  //   });
+
+  //   swalWithBootstrapButtons
+  //     .fire({
+  //       title: `¿Estás seguro?\nEliminar a  ${
+  //         selectedProducto ? selectedProducto.nombre : ""
+  //       }`,
+  //       text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+  //       icon: "warning",
+  //       showCancelButton: true,
+  //       confirmButtonText: "Sí, eliminarlo",
+  //       cancelButtonText: "No, cancelar",
+  //       confirmButtonColor: "#fff",
+  //       cancelButtonColor: "#fff",
+  //       reverseButtons: true,
+  //       backdrop: `
+  //         rgba(0,0,123,0.4)
+  //         url("/cat.gif")
+  //         left top
+  //         no-repeat
+  //       `,
+  //       onClose: () => {
+  //         // Restablecer selectedClient al cerrar el modal
+  //         setSelectedProducto(null);
+  //       },
+  //     })
+  //     .then((result) => {
+  //       if (result.isConfirmed) {
+  //         // Aquí colocas la lógica para eliminar el cliente
+  //         const resultado = await eliminarProducto();
+  //         console.log("el resultado: ", resultado);
+  //         setSelectedProducto(null);
+  //         if (resultado === 200) {
+  //           swalWithBootstrapButtons.fire({
+  //             title: "¡Eliminado!",
+  //             text: `El Producto ${
+  //               selectedProducto ? selectedProducto.nombre : ""
+  //             } ha sido eliminado.`,
+  //             icon: "success",
+  //           });
+  //         } else if (resultado === 405) {
+  //           swalWithBootstrapButtons.fire({
+  //             title: "DATOS EN DB ",
+  //             text: `Existen Registros de este producto en Ventas, No es posible eliminar.`,
+  //             icon: "error",
+  //           });
+  //         } else
+  //           swalWithBootstrapButtons.fire({
+  //             title: "ALGO SALIO MAL ",
+  //             text: `El servidor fallo.`,
+  //             icon: "error",
+  //           });
+  //       } else if (result.dismiss === Swal.DismissReason.cancel) {
+  //         setSelectedProducto(null);
+  //         swalWithBootstrapButtons.fire({
+  //           title: "Cancelado",
+  //           text: "El Producto está a salvo :)",
+  //           icon: "error",
+  //         });
+  //       }
+  //       const redireccion = setTimeout(() => {
+  //         router.push("/products");
+  //       }, 2000);
+  //     });
+  // };
+
+  const handleDeleteConfirmation = async () => {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: "btn btn-success",
@@ -89,12 +166,12 @@ const Productspage = () => {
       buttonsStyling: false,
     });
 
-    swalWithBootstrapButtons
-      .fire({
+    try {
+      const result = await swalWithBootstrapButtons.fire({
         title: `¿Estás seguro?\nEliminar a  ${
           selectedProducto ? selectedProducto.nombre : ""
         }`,
-        text: "Se cambiará el estado del mismo, podrás volverlo a dar de alta",
+        text: "Se eliminara el Producto",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Sí, eliminarlo",
@@ -103,46 +180,58 @@ const Productspage = () => {
         cancelButtonColor: "#fff",
         reverseButtons: true,
         backdrop: `
-          rgba(0,0,123,0.4)
-          url("/cat.gif")
-          left top
-          no-repeat
-        `,
+            rgba(0,0,123,0.4)
+            url("/cat.gif")
+            left top
+            no-repeat
+          `,
         onClose: () => {
           // Restablecer selectedClient al cerrar el modal
           setSelectedProducto(null);
         },
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          // Aquí colocas la lógica para eliminar el cliente
-          const resultado = eliminarProducto();
-          setSelectedProducto(null);
-          resultado
-            ? swalWithBootstrapButtons.fire({
-                title: "¡Eliminado!",
-                text: `El Producto ${
-                  selectedProducto ? selectedProducto.nombre : ""
-                } ha sido eliminado.`,
-                icon: "success",
-              })
-            : swalWithBootstrapButtons.fire({
-                title: "ALGO SALIO MAL ",
-                text: `El servidor fallo.`,
-                icon: "error",
-              });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          setSelectedProducto(null);
+      });
+
+      if (result.isConfirmed) {
+        // Aquí colocas la lógica para eliminar el cliente
+        const resultado = await eliminarProducto();
+        console.log("el resultado: ", resultado);
+        setSelectedProducto(null);
+        if (resultado === 200) {
           swalWithBootstrapButtons.fire({
-            title: "Cancelado",
-            text: "El Producto está a salvo :)",
+            title: "¡Eliminado!",
+            text: `El Producto ${
+              selectedProducto ? selectedProducto.nombre : ""
+            } ha sido eliminado.`,
+            icon: "success",
+          });
+        } else if (resultado === 405) {
+          swalWithBootstrapButtons.fire({
+            title: "DATOS EN DB ",
+            text: `Existen Registros de este producto en Ventas, No es posible eliminar.`,
+            icon: "error",
+          });
+        } else {
+          swalWithBootstrapButtons.fire({
+            title: "ALGO SALIO MAL ",
+            text: `El servidor fallo.`,
             icon: "error",
           });
         }
-        const redireccion = setTimeout(() => {
-          router.push("/products");
-        }, 2000);
-      });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        setSelectedProducto(null);
+        swalWithBootstrapButtons.fire({
+          title: "Cancelado",
+          text: "El Producto está a salvo :)",
+          icon: "error",
+        });
+      }
+
+      const redireccion = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   {
@@ -214,12 +303,12 @@ const Productspage = () => {
             Sin Stock
           </button>
 
-          <button
+          {/* <button
             className=" p-3 rounded-xl border-2 border-white bg-base-content text-base-100 hover:scale-105 hover:bg-base-100 hover:text-base-content text-2xl"
             onClick={() => setFiltro("debaja")}
           >
             Productos dados de Baja
-          </button>
+          </button> */}
         </div>
         <div>
           <table className="min-w-full border border-gray-300">

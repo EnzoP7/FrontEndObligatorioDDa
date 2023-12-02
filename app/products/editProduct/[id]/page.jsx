@@ -3,32 +3,28 @@
 import { useForm } from "@/src/hooks/useForm";
 import Swal from "sweetalert2";
 import React, { useEffect, useRef } from "react";
-import unsoloProducto from "@/data/unProducto";
-import losProductos from "@/data/productos";
+import useUnsoloProducto from "@/data/unProducto";
+
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
 const editProductPage = ({ params }) => {
   const router = useRouter();
   const elId = params.id;
-  const PRODUCTOS = losProductos();
-  const productoFiltrado = PRODUCTOS.filter((elPro) => elPro.id == elId);
-  const producto = productoFiltrado[0] || 1;
+  // const productoFiltrado = PRODUCTOS.filter((elPro) => elPro.id == elId);
+  // const producto = productoFiltrado[0] || 1;
+  const producto = useUnsoloProducto(elId);
+  console.log("EL PRODUCTO: ", producto);
 
   const resetButtonRef = useRef(null); // Crear una referencia
   useEffect(() => {
-    onResetForm(); // Llamada a onResetForm cuando el componente se monta
+    onResetForm();
     const timeoutId = setTimeout(() => {
       resetButtonRef.current.click();
     }, 100);
 
-    // Limpiar el timeout en la fase de limpieza del efecto para evitar fugas de memoria
     return () => clearTimeout(timeoutId);
   }, []);
-
-  //! ver que onda con el error 302, mientras tanto traigo todos y filtro por id
-  // const producto = unsoloProducto(elId);
-  console.log("EL PRODUCTO JEJJE", producto);
 
   const initialFormState = {
     id: producto.id,
