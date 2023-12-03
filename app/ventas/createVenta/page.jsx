@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 
-const createVentaPAge = () => {
+const CreateVentaPAge = () => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
 
   const router = useRouter();
@@ -85,7 +85,7 @@ const createVentaPAge = () => {
     useForm();
 
   const ProductosFiltrados = PRODUCTOS.filter(
-    (elProducto) => elProducto.estado
+    (elProducto) => elProducto.estado && elProducto.stock != 0
   );
 
   const usuariosFiltrados = clientes.filter((elCli) => elCli.estado);
@@ -328,4 +328,4 @@ const createVentaPAge = () => {
   );
 };
 
-export default createVentaPAge;
+export default CreateVentaPAge;

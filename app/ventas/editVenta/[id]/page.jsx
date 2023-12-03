@@ -11,7 +11,7 @@ import Skeleton from "react-loading-skeleton";
 
 import Swal from "sweetalert2";
 
-const editVentaPage = ({ params }) => {
+const EditVentaPage = ({ params }) => {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -189,7 +189,10 @@ const editVentaPage = ({ params }) => {
   };
 
   const ProductosFiltrados =
-    PRODUCTOS && PRODUCTOS.filter((elProducto) => elProducto.estado);
+    PRODUCTOS &&
+    PRODUCTOS.filter(
+      (elProducto) => elProducto.estado && elProducto.stock != 0
+    );
   const usuariosFiltrados =
     losClientes && losClientes.filter((elCli) => elCli.estado);
 
@@ -290,7 +293,7 @@ const editVentaPage = ({ params }) => {
         `,
           });
     }
-    redireccion;
+
     setTimeout(() => {
       router.push("/ventas");
     }, 2000);
@@ -438,4 +441,4 @@ const editVentaPage = ({ params }) => {
   );
 };
 
-export default editVentaPage;
+export default EditVentaPage;

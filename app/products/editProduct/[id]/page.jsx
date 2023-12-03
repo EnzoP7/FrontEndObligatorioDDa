@@ -8,7 +8,7 @@ import useUnsoloProducto from "@/data/unProducto";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-const editProductPage = ({ params }) => {
+const EditProductPage = ({ params }) => {
   const router = useRouter();
   const elId = params.id;
   // const productoFiltrado = PRODUCTOS.filter((elPro) => elPro.id == elId);
@@ -197,4 +197,4 @@ const editProductPage = ({ params }) => {
   );
 };
 
-export default editProductPage;
+export default EditProductPage;

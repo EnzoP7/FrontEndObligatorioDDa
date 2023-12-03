@@ -305,6 +305,7 @@ const UsuarioPage = ({ params }) => {
             nombre: cliente.nombre,
             telefono: cliente.telefono,
             estado: cliente.estado,
+            direccion: cliente.direccion,
             contadorCompras: cliente.contadorCompras,
             fechaMembresia: obtenerFechaActual(),
           });

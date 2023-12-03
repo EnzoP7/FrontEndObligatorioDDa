@@ -243,7 +243,7 @@ const Productspage = () => {
   }
   return (
     <>
-      <div>
+      <div className="p-3">
         <div className="flex items-center">
           <h1 className="text-7xl font-semibold m-10">Productos</h1>
           <button
