@@ -220,6 +220,7 @@ const CreateVentaPAge = () => {
                 //   value={nombre}
                 //   onChange={onInputChange}
               >
+                <option selected>Selecciona</option>
                 {ProductosFiltrados.map((producto) => (
                   <option value={producto.id} key={producto.id}>
                     {producto.nombre}
